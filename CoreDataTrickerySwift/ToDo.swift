@@ -23,6 +23,12 @@ enum ToDoSection: Int {
     }
 }
 
+enum ToDoPriority: Int {
+    case Low = 1
+    case Medium = 2
+    case High = 3
+}
+
 @objc(ToDo)
 class ToDo: NSManagedObject {
     
@@ -32,6 +38,7 @@ class ToDo: NSManagedObject {
     @NSManaged var due: NSDate?
     @NSManaged var done: NSNumber
     @NSManaged var internalOrder: NSNumber
+    @NSManaged var priority: NSNumber
 
     @NSManaged var sortingIdentifier: NSNumber
     @NSManaged var sectionIdentifier: String

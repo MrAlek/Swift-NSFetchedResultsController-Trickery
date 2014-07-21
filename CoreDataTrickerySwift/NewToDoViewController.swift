@@ -12,6 +12,7 @@ import CoreData
 class NewToDoViewController: UIViewController {
     
     @IBOutlet var textField: UITextField
+    @IBOutlet var priorityControl: UISegmentedControl
     
     var managedObjectContext: NSManagedObjectContext!
     
@@ -31,9 +32,19 @@ class NewToDoViewController: UIViewController {
             (toDo: ToDo) -> Void in
             toDo.title = self.textField.text
             toDo.internalOrder = maxInternalOrder+1
+            toDo.priority = self.selectedPriority().toRaw()
         }
         managedObjectContext.save(nil)
         
         dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    func selectedPriority() -> ToDoPriority {
+        switch self.priorityControl.selectedSegmentIndex {
+        case 0:  return .Low
+        case 1:  return .Medium
+        case 2:  return .High
+        default: return .Medium
+        }
     }
 }

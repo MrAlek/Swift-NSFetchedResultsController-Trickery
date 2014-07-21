@@ -65,10 +65,31 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Priority" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E9z-Vf-hqw">
+                                <rect key="frame" x="144" y="123" width="46" height="17"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="Tor-fH-8bR">
+                                <rect key="frame" x="56" y="145" width="220" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="220" id="fr1-75-hyr"/>
+                                </constraints>
+                                <segments>
+                                    <segment title="Low"/>
+                                    <segment title="Medium"/>
+                                    <segment title="High"/>
+                                </segments>
+                            </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstAttribute="centerX" secondItem="Tor-fH-8bR" secondAttribute="centerX" constant="-6" id="2WX-JR-FUM"/>
+                            <constraint firstAttribute="centerX" secondItem="E9z-Vf-hqw" secondAttribute="centerX" constant="-6.5" id="IJu-HZ-ecQ"/>
                             <constraint firstItem="e2N-0B-Vqo" firstAttribute="leading" secondItem="3vY-BY-xfx" secondAttribute="leading" constant="20" id="WnG-Ck-Lmt"/>
+                            <constraint firstItem="E9z-Vf-hqw" firstAttribute="top" secondItem="e2N-0B-Vqo" secondAttribute="bottom" constant="15" id="kh2-Ed-uT2"/>
+                            <constraint firstItem="Tor-fH-8bR" firstAttribute="top" secondItem="E9z-Vf-hqw" secondAttribute="bottom" constant="5" id="nVq-67-5gE"/>
                             <constraint firstItem="e2N-0B-Vqo" firstAttribute="top" secondItem="wKX-tD-XXI" secondAttribute="bottom" constant="20" id="oKY-nE-NG8"/>
                             <constraint firstAttribute="trailing" secondItem="e2N-0B-Vqo" secondAttribute="trailing" constant="20" id="piC-M8-vB2"/>
                         </constraints>
@@ -86,6 +107,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="priorityControl" destination="Tor-fH-8bR" id="uxn-3Q-3Mt"/>
                         <outlet property="textField" destination="e2N-0B-Vqo" id="2jZ-oF-VQm"/>
                     </connections>
                 </viewController>
