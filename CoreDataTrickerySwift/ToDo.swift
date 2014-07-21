@@ -37,21 +37,26 @@ class ToDo: NSManagedObject {
     @NSManaged var title: String
     @NSManaged var due: NSDate?
     @NSManaged var done: NSNumber
-    @NSManaged var internalOrder: NSNumber
     @NSManaged var priority: NSNumber
-
-    @NSManaged var sortingIdentifier: NSNumber
-    @NSManaged var sectionIdentifier: String
-    
+    @NSManaged var internalOrder: NSNumber
+    @NSManaged var sectionIdentifier: NSString
     
     class func newToDoInContext(context: NSManagedObjectContext, configurationBlock: ((toDo: ToDo)->Void)) -> ToDo {
         
         var toDo = NSEntityDescription.insertNewObjectForEntityForName(entityName(), inManagedObjectContext: context) as ToDo
         
         configurationBlock(toDo: toDo)
-        toDo.generateSortIdentifiers()
+        toDo.sectionIdentifier = String(toDo.sectionForCurrentState().toRaw())
         
         return toDo;
+    }
+    
+    func sectionForCurrentState() -> ToDoSection {
+        if done.boolValue {
+            return ToDoSection.Done
+        } else {
+            return ToDoSection.ToDo
+        }
     }
     
     class func maxInternalOrder(context: NSManagedObjectContext) -> Int {
@@ -79,27 +84,7 @@ class ToDo: NSManagedObject {
     
     func edit(configurationBlock: ((toDo: ToDo)->Void)) {
         configurationBlock(toDo: self)
-        generateSortIdentifiers()
+        self.sectionIdentifier = String(self.sectionForCurrentState().toRaw())
     }
-    
-    func generateSortIdentifiers() {
-        
-        let section = sectionForCurrentState()
-        
-        sectionIdentifier = String(section.toRaw())
 
-        var tempIdentifier = section.toRaw()*1000
-        tempIdentifier += 999-internalOrder.integerValue
-        
-        sortingIdentifier = tempIdentifier
-    }
-    
-    func sectionForCurrentState() -> ToDoSection {
-        if done.boolValue {
-            return ToDoSection.Done
-        } else {
-            return ToDoSection.ToDo
-        }
-    }
-    
 }

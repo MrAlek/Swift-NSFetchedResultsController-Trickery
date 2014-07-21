@@ -16,9 +16,9 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     @lazy var toDosController: NSFetchedResultsController = {
         
         let fetchRequest = NSFetchRequest(entityName: "ToDo")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sortingIdentifier", ascending: true)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true), NSSortDescriptor(key: "internalOrder", ascending: false)]
         
-        let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext, sectionNameKeyPath: "sectionIdentifier", cacheName: "")
+        let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext, sectionNameKeyPath: "sectionIdentifier", cacheName: nil)
         
         controller.performFetch(nil)
         
@@ -94,10 +94,9 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         
         let toDo = toDosController.objectAtIndexPath(indexPath) as ToDo
         
-        toDo.done = !toDo.done.boolValue
-        toDo.generateSortIdentifiers()
-        toDo.managedObjectContext.save(nil)
         
+        toDo.edit() { $0.done = !$0.done.boolValue }
+        toDo.managedObjectContext.save(nil)
     }
     
     //
