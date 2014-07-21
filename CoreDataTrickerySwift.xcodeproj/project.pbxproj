@@ -9,10 +9,12 @@
 /* Begin PBXBuildFile section */
 		934CA8AF1976E807004C29EB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934CA8AE1976E807004C29EB /* AppDelegate.swift */; };
 		934CA8B21976E807004C29EB /* CoreDataTrickerySwift.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 934CA8B01976E807004C29EB /* CoreDataTrickerySwift.xcdatamodeld */; };
-		934CA8B41976E807004C29EB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934CA8B31976E807004C29EB /* ViewController.swift */; };
 		934CA8B71976E807004C29EB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 934CA8B51976E807004C29EB /* Main.storyboard */; };
 		934CA8B91976E807004C29EB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 934CA8B81976E807004C29EB /* Images.xcassets */; };
 		934CA8C51976E807004C29EB /* CoreDataTrickerySwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934CA8C41976E807004C29EB /* CoreDataTrickerySwiftTests.swift */; };
+		934CA8CF1976E958004C29EB /* ToDoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934CA8CE1976E958004C29EB /* ToDoViewController.swift */; };
+		934CA8D91977E558004C29EB /* ToDo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934CA8D81977E558004C29EB /* ToDo.swift */; };
+		93E40D5D197D0B0900B1BEB5 /* NewToDoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E40D5C197D0B0900B1BEB5 /* NewToDoViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,12 +32,14 @@
 		934CA8AD1976E807004C29EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		934CA8AE1976E807004C29EB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		934CA8B11976E807004C29EB /* CoreDataTrickerySwift.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataTrickerySwift.xcdatamodel; sourceTree = "<group>"; };
-		934CA8B31976E807004C29EB /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		934CA8B61976E807004C29EB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		934CA8B81976E807004C29EB /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		934CA8BE1976E807004C29EB /* CoreDataTrickerySwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoreDataTrickerySwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		934CA8C31976E807004C29EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		934CA8C41976E807004C29EB /* CoreDataTrickerySwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataTrickerySwiftTests.swift; sourceTree = "<group>"; };
+		934CA8CE1976E958004C29EB /* ToDoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoViewController.swift; sourceTree = "<group>"; };
+		934CA8D81977E558004C29EB /* ToDo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDo.swift; sourceTree = "<group>"; };
+		93E40D5C197D0B0900B1BEB5 /* NewToDoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewToDoViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,7 +82,9 @@
 			isa = PBXGroup;
 			children = (
 				934CA8AE1976E807004C29EB /* AppDelegate.swift */,
-				934CA8B31976E807004C29EB /* ViewController.swift */,
+				93E40D5C197D0B0900B1BEB5 /* NewToDoViewController.swift */,
+				934CA8D81977E558004C29EB /* ToDo.swift */,
+				934CA8CE1976E958004C29EB /* ToDoViewController.swift */,
 				934CA8B51976E807004C29EB /* Main.storyboard */,
 				934CA8B81976E807004C29EB /* Images.xcassets */,
 				934CA8B01976E807004C29EB /* CoreDataTrickerySwift.xcdatamodeld */,
@@ -211,9 +217,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				934CA8B41976E807004C29EB /* ViewController.swift in Sources */,
+				93E40D5D197D0B0900B1BEB5 /* NewToDoViewController.swift in Sources */,
 				934CA8AF1976E807004C29EB /* AppDelegate.swift in Sources */,
+				934CA8CF1976E958004C29EB /* ToDoViewController.swift in Sources */,
 				934CA8B21976E807004C29EB /* CoreDataTrickerySwift.xcdatamodeld in Sources */,
+				934CA8D91977E558004C29EB /* ToDo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,9 +337,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = CoreDataTrickerySwift/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -340,9 +352,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				INFOPLIST_FILE = CoreDataTrickerySwift/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 			};
 			name = Release;
 		};
@@ -399,6 +414,7 @@
 				934CA8CA1976E807004C29EB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		934CA8CB1976E807004C29EB /* Build configuration list for PBXNativeTarget "CoreDataTrickerySwiftTests" */ = {
 			isa = XCConfigurationList;
@@ -407,6 +423,7 @@
 				934CA8CD1976E807004C29EB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
