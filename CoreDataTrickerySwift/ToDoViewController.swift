@@ -60,7 +60,8 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     override func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
         
         let cell = tableView.dequeueReusableCellWithIdentifier("cell") as UITableViewCell
-        configureCell(cell, indexPath: indexPath)
+        let toDo = toDosController.objectAtIndexPath(indexPath) as ToDo
+        configureCell(cell, toDo:toDo)
         return cell
     }
     
@@ -93,8 +94,6 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
         let toDo = toDosController.objectAtIndexPath(indexPath) as ToDo
-        
-        
         toDo.edit() { $0.done = !$0.done.boolValue }
         toDo.managedObjectContext.save(nil)
     }
@@ -117,7 +116,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         switch type {
         case .Insert:
             sectionsBeingAdded.append(sectionIndex)
-            tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
+            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
         case .Delete:
             sectionsBeingRemoved.append(sectionIndex)
             self.tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
@@ -134,7 +133,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         case .Delete:
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
         case .Update:
-            configureCell(tableView.cellForRowAtIndexPath(indexPath), indexPath: indexPath  )
+            configureCell(tableView.cellForRowAtIndexPath(indexPath), toDo: anObject as ToDo  )
         case .Move:
             if !contains(sectionsBeingAdded, newIndexPath.section) && !contains(sectionsBeingRemoved, indexPath.section) {
                 tableView.moveRowAtIndexPath(indexPath, toIndexPath: newIndexPath)
@@ -155,9 +154,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     // Private methods
     //
     
-    func configureCell(cell: UITableViewCell, indexPath: NSIndexPath) {
-        
-        let toDo = toDosController.objectAtIndexPath(indexPath) as ToDo
+    func configureCell(cell: UITableViewCell, toDo: ToDo) {
         cell.textLabel.text = toDo.title
     }
     
