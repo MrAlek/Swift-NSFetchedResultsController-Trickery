@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6185.7" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="puR-qM-r1Z">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6185.11" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="puR-qM-r1Z">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6181.2"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6190.4"/>
     </dependencies>
     <scenes>
-        <!--To Do-->
+        <!--To Do View Controller-->
         <scene sceneID="75W-4G-XId">
             <objects>
                 <tableViewController id="ZyJ-xS-6Cd" customClass="ToDoViewController" customModule="CoreDataTrickerySwift" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="A4c-wH-vyw">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="A4c-wH-vyw">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell contentMode="scaleToFill" ambiguous="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" textLabel="9eg-Bq-03G" style="IBUITableViewCellStyleDefault" id="CyK-kl-71o">
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" textLabel="9eg-Bq-03G" style="IBUITableViewCellStyleDefault" id="CyK-kl-71o">
                                 <rect key="frame" x="0.0" y="86" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="CyK-kl-71o" id="sQI-aT-HAU">
@@ -36,7 +36,19 @@
                             <outlet property="delegate" destination="ZyJ-xS-6Cd" id="VE4-6M-gS9"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="To Do" id="fK3-sW-HK0">
+                    <navigationItem key="navigationItem" id="fK3-sW-HK0">
+                        <nil key="title"/>
+                        <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="3No-Zh-j9i">
+                            <rect key="frame" x="84.5" y="6.5" width="151" height="31"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <segments>
+                                <segment title="Simple"/>
+                                <segment title="Prioritized"/>
+                            </segments>
+                            <connections>
+                                <action selector="viewModeControlChanged:" destination="ZyJ-xS-6Cd" eventType="valueChanged" id="s7U-rO-13q"/>
+                            </connections>
+                        </segmentedControl>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="dpF-4R-Wbw">
                             <connections>
                                 <segue destination="xgn-Ke-jv4" kind="modal" identifier="present new to do" id="dDJ-dV-JZU"/>

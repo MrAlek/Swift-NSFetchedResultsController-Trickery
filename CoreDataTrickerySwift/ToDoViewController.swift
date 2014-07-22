@@ -13,7 +13,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     
     var managedObjectContext: NSManagedObjectContext!
     
-    @lazy var toDosController: NSFetchedResultsController = {
+    lazy var toDosController: NSFetchedResultsController = {
         
         let fetchRequest = NSFetchRequest(entityName: "ToDo")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true), NSSortDescriptor(key: "internalOrder", ascending: false)]
@@ -115,10 +115,10 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
         
         switch type {
-        case NSFetchedResultsChangeInsert:
+        case .Insert:
             sectionsBeingAdded.append(sectionIndex)
-            self.tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case NSFetchedResultsChangeDelete:
+            tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
+        case .Delete:
             sectionsBeingRemoved.append(sectionIndex)
             self.tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
         default:
@@ -129,13 +129,13 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
         
         switch type {
-        case NSFetchedResultsChangeInsert:
+        case .Insert:
             tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Automatic)
-        case NSFetchedResultsChangeDelete:
+        case .Delete:
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-        case NSFetchedResultsChangeUpdate:
+        case .Update:
             configureCell(tableView.cellForRowAtIndexPath(indexPath), indexPath: indexPath  )
-        case NSFetchedResultsChangeMove:
+        case .Move:
             if !contains(sectionsBeingAdded, newIndexPath.section) && !contains(sectionsBeingRemoved, indexPath.section) {
                 tableView.moveRowAtIndexPath(indexPath, toIndexPath: newIndexPath)
             } else {

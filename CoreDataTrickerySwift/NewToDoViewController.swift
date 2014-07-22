@@ -11,8 +11,8 @@ import CoreData
 
 class NewToDoViewController: UIViewController {
     
-    @IBOutlet var textField: UITextField
-    @IBOutlet var priorityControl: UISegmentedControl
+    @IBOutlet var textField: UITextField!
+    @IBOutlet var priorityControl: UISegmentedControl!
     
     var managedObjectContext: NSManagedObjectContext!
     
