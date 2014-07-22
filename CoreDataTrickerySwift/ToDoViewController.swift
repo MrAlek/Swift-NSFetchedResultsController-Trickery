@@ -43,6 +43,14 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         }
     }
     
+    @IBAction func viewModeControlChanged(sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            ToDoListConfiguration.defaultConfiguration(managedObjectContext).setListMode(.Simple)
+        default:
+            ToDoListConfiguration.defaultConfiguration(managedObjectContext).setListMode(.Prioritized)
+        }
+    }
     
     //
     // Table view data source

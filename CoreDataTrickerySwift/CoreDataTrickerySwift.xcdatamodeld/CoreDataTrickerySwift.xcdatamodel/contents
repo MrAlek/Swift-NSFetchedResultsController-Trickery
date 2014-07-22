@@ -8,8 +8,14 @@
         <attribute name="sectionIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="viewMode" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <relationship name="listConfiguration" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ToDoListConfiguration" inverseName="toDos" inverseEntity="ToDoListConfiguration" syncable="YES"/>
+    </entity>
+    <entity name="ToDoListConfiguration" representedClassName="ToDoListConfiguration" syncable="YES">
+        <attribute name="listMode" attributeType="Integer 32" defaultValueString="1" syncable="YES"/>
+        <relationship name="toDos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ToDo" inverseName="listConfiguration" inverseEntity="ToDo" syncable="YES"/>
     </entity>
     <elements>
-        <element name="ToDo" positionX="-63" positionY="-18" width="128" height="148"/>
+        <element name="ToDo" positionX="-63" positionY="-18" width="128" height="163"/>
+        <element name="ToDoListConfiguration" positionX="-63" positionY="36" width="128" height="73"/>
     </elements>
 </model>

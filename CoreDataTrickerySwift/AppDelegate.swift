@@ -16,6 +16,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {
         
+        let listConfiguration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
+        listConfiguration.setListMode(.Simple)
+        
         if let toDosController = (window.rootViewController as? UINavigationController)?.topViewController as? ToDoViewController {
             toDosController.managedObjectContext = managedObjectContext
         }
