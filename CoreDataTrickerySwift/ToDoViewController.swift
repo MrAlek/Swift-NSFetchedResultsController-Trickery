@@ -21,6 +21,18 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         return controller
     }()
     
+    private var ignoreUpdates: Bool = false
+    
+    // 
+    // View lifecycle
+    //
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        navigationItem.leftBarButtonItem = editButtonItem()
+    }
+    
     //
     // User interaction
     //
@@ -63,6 +75,67 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         return cell
     }
     
+    override func tableView(tableView: UITableView!, moveRowAtIndexPath sourceIndexPath: NSIndexPath!, toIndexPath destinationIndexPath: NSIndexPath!) {
+        
+        if sourceIndexPath == destinationIndexPath {
+            return
+        }
+        
+        ignoreUpdates = true
+        
+        // Get the moved toDo
+        let toDo = toDoListController.toDoAtIndexPath(sourceIndexPath)
+        
+        // First check if it has moved section
+        if sourceIndexPath.section != destinationIndexPath.section {
+            
+            // Get the new section
+            let section = toDoListController.toDoSectionforSectionIndex(destinationIndexPath.section)!
+            
+            // Update state
+            toDo.edit() {
+                switch section {
+                case .ToDo:
+                    $0.done = false
+                case .Done:
+                    $0.done = true
+                case .HighPriority:
+                    $0.priority = ToDoPriority.High.toRaw()
+                case .MediumPriority:
+                    $0.priority = ToDoPriority.Medium.toRaw()
+                case .LowPriority:
+                    $0.priority = ToDoPriority.Low.toRaw()
+                }
+            }
+        }
+        
+        // Now update internal order to reflect new position
+        
+        // First get all toDos, in sorted order
+        var sortedToDos = toDoListController.fetchedToDos()
+        sortedToDos = sortedToDos.filter() {$0 != toDo} // Remove current toDo
+        
+        // Insert toDo at new place in array
+        var sortedIndex = destinationIndexPath.row
+        for sectionIndex in 0..<destinationIndexPath.section {
+            sortedIndex += toDoListController.numberOfToDosInSection(sectionIndex)
+            if sectionIndex == sourceIndexPath.section {
+                sortedIndex -= 1 // Remember, controller still thinks this toDo is in the old section
+            }
+        }
+        sortedToDos.insert(toDo, atIndex: sortedIndex)
+        
+        // Regenerate internal order for all toDos
+        for (index, toDo) in enumerate(sortedToDos) {
+            toDo.edit() {
+                $0.internalOrder = sortedToDos.count-index
+            }
+        }
+        
+        // Save
+        toDo.managedObjectContext.save(nil)
+    }
+    
     //
     // Table view delegate
     //
@@ -99,12 +172,19 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     var sectionsBeingRemoved: [Int] = []
     
     func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
+        if ignoreUpdates {
+            return
+        }
+        
         sectionsBeingAdded = []
         sectionsBeingRemoved = []
         tableView.beginUpdates()
     }
     
     func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
+        if ignoreUpdates {
+            return
+        }
         
         switch type {
         case .Insert:
@@ -119,6 +199,9 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }
     
     func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
+        if ignoreUpdates {
+            return
+        }
         
         switch type {
         case .Insert:
@@ -140,7 +223,11 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }
     
     func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
-        tableView.endUpdates()
+        if ignoreUpdates {
+            ignoreUpdates = false
+        } else {
+            tableView.endUpdates()
+        }
     }
     
     //
