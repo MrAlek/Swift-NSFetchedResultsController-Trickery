@@ -13,22 +13,13 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     
     var managedObjectContext: NSManagedObjectContext!
     
-    lazy var toDosController: NSFetchedResultsController = {
+    lazy var toDoListController: ToDoListController = {
         
-        let fetchRequest = NSFetchRequest(entityName: "ToDo")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true), NSSortDescriptor(key: "internalOrder", ascending: false)]
-        
-        let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext, sectionNameKeyPath: "sectionIdentifier", cacheName: nil)
-        
-        controller.performFetch(nil)
-        
+        let controller = ToDoListController(managedObjectContext: self.managedObjectContext)
         controller.delegate = self
-        if self.isViewLoaded() {
-            self.tableView.reloadData()
-        }
         
         return controller
-        }()
+    }()
     
     //
     // User interaction
@@ -57,18 +48,17 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     //
     
     override func numberOfSectionsInTableView(tableView: UITableView!) -> Int {
-        return toDosController.sections.count
+        return toDoListController.numberOfSections()
     }
     
     override func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int {
-        let section = toDosController.sections[section] as NSFetchedResultsSectionInfo
-        return section.numberOfObjects
+        return toDoListController.numberOfToDosInSection(section)
     }
     
     override func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
         
         let cell = tableView.dequeueReusableCellWithIdentifier("cell") as UITableViewCell
-        let toDo = toDosController.objectAtIndexPath(indexPath) as ToDo
+        let toDo = toDoListController.toDoAtIndexPath(indexPath)
         configureCell(cell, toDo:toDo)
         return cell
     }
@@ -80,8 +70,8 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     override func tableView(tableView: UITableView!, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath!)  {
         if editingStyle == .Delete {
             
-            let object = toDosController.objectAtIndexPath(indexPath) as NSManagedObject
-            toDosController.managedObjectContext.deleteObject(object)
+            let toDo = toDoListController.toDoAtIndexPath(indexPath)
+            toDo.managedObjectContext.deleteObject(toDo)
             
             managedObjectContext.save(nil)
         }
@@ -89,19 +79,14 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     
     override func tableView(tableView: UITableView!, titleForHeaderInSection section: Int) -> String! {
         
-        let sectionInfo = toDosController.sections[section] as NSFetchedResultsSectionInfo
-        if let toDoSection = ToDoSection.fromRaw(sectionInfo.name.toInt()!) {
-            return toDoSection.title()
-        } else {
-            return nil
-        }
+        return toDoListController.toDoSectionforSectionIndex(section)?.title()
     }
     
     override func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!) {
         
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
-        let toDo = toDosController.objectAtIndexPath(indexPath) as ToDo
+        let toDo = toDoListController.toDoAtIndexPath(indexPath)
         toDo.edit() { $0.done = !$0.done.boolValue }
         toDo.managedObjectContext.save(nil)
     }

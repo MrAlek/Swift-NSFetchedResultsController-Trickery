@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9308541F197D820D002B20E1 /* CoreDataTrickerySwift.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9308541D197D820D002B20E1 /* CoreDataTrickerySwift.xcdatamodeld */; };
+		930E657319896E0400655D55 /* ToDoListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 930E657219896E0400655D55 /* ToDoListController.swift */; };
 		934CA8AF1976E807004C29EB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934CA8AE1976E807004C29EB /* AppDelegate.swift */; };
 		934CA8B71976E807004C29EB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 934CA8B51976E807004C29EB /* Main.storyboard */; };
 		934CA8B91976E807004C29EB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 934CA8B81976E807004C29EB /* Images.xcassets */; };
@@ -18,6 +19,7 @@
 
 /* Begin PBXFileReference section */
 		9308541E197D820D002B20E1 /* CoreDataTrickerySwift.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataTrickerySwift.xcdatamodel; sourceTree = "<group>"; };
+		930E657219896E0400655D55 /* ToDoListController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoListController.swift; sourceTree = "<group>"; };
 		934CA8A91976E807004C29EB /* CoreDataTrickerySwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreDataTrickerySwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		934CA8AD1976E807004C29EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		934CA8AE1976E807004C29EB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 				934CA8AE1976E807004C29EB /* AppDelegate.swift */,
 				93E40D5C197D0B0900B1BEB5 /* NewToDoViewController.swift */,
 				934CA8D81977E558004C29EB /* ToDo.swift */,
+				930E657219896E0400655D55 /* ToDoListController.swift */,
 				934CA8CE1976E958004C29EB /* ToDoViewController.swift */,
 				9308541D197D820D002B20E1 /* CoreDataTrickerySwift.xcdatamodeld */,
 				934CA8B51976E807004C29EB /* Main.storyboard */,
@@ -150,6 +153,7 @@
 				93E40D5D197D0B0900B1BEB5 /* NewToDoViewController.swift in Sources */,
 				934CA8AF1976E807004C29EB /* AppDelegate.swift in Sources */,
 				934CA8CF1976E958004C29EB /* ToDoViewController.swift in Sources */,
+				930E657319896E0400655D55 /* ToDoListController.swift in Sources */,
 				934CA8D91977E558004C29EB /* ToDo.swift in Sources */,
 				9308541F197D820D002B20E1 /* CoreDataTrickerySwift.xcdatamodeld in Sources */,
 			);
