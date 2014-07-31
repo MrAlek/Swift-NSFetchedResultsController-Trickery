@@ -10,7 +10,23 @@ import CoreData
 
 class ToDoListController: NSFetchedResultsControllerDelegate {
     
+    struct ControllerSectionInfo {
+        var section: ToDoSection!
+        var fetchedIndex: Int?
+    }
+    
     var delegate: NSFetchedResultsControllerDelegate?
+    
+    var showsEmptySections: Bool = false {
+    didSet {
+        if showsEmptySections == oldValue { return }
+        
+        // Notify delegate that sections will be changed
+    }
+    }
+    
+    private var sectionsInfo: [ControllerSectionInfo] = []
+    var sections: [ToDoSection] { return sectionsInfo.map() { $0.section } }
     
     private lazy var toDosController: NSFetchedResultsController = {
         
@@ -31,6 +47,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
         self.listConfiguration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
+        generateSectionInfoWithEmptySections(false)
     }
     
     func fetchedToDos() -> [ToDo] {
@@ -39,15 +56,6 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     
     func toDoAtIndexPath(indexPath: NSIndexPath) -> ToDo {
         return toDosController.objectAtIndexPath(indexPath) as ToDo
-    }
-    
-    func toDoSectionforSectionIndex(sectionIndex: Int) -> ToDoSection? {
-        let sectionInfo = toDosController.sections[sectionIndex] as NSFetchedResultsSectionInfo
-        return ToDoSection.fromRaw(sectionInfo.name.toInt()!)
-    }
-    
-    func numberOfSections() -> Int {
-        return toDosController.sections.count
     }
     
     func numberOfToDosInSection(section: Int) -> Int {
@@ -71,6 +79,9 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     
     func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
         
+        // Regenerate all section info (I know this isn't Über-effective but it shouldn't take too much time)
+        generateSectionInfoWithEmptySections(showsEmptySections)
+        
         delegate?.controller?(controller, didChangeSection: sectionInfo, atIndex: sectionIndex, forChangeType: type)
     }
     
@@ -80,5 +91,21 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
         delegate?.controllerDidChangeContent?(controller)
+    }
+    
+    //
+    // Private methods
+    //
+    
+    private func generateSectionInfoWithEmptySections(emptySections: Bool) {
+        
+        sectionsInfo = []
+        
+        // Just get all the sections from the fetched results controller
+        for (fetchedIndex, sectionInfo) in enumerate(toDosController.sections as [NSFetchedResultsSectionInfo]) {
+            let section = ToDoSection.fromRaw(sectionInfo.name.toInt()!)
+            sectionsInfo.append(ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex))
+        }
+        
     }
 }

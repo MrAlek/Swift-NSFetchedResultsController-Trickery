@@ -33,6 +33,12 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         navigationItem.leftBarButtonItem = editButtonItem()
     }
     
+    override func setEditing(editing: Bool, animated: Bool)  {
+        super.setEditing(editing, animated: animated)
+        
+        toDoListController.showsEmptySections = editing
+    }
+    
     //
     // User interaction
     //
@@ -60,7 +66,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     //
     
     override func numberOfSectionsInTableView(tableView: UITableView!) -> Int {
-        return toDoListController.numberOfSections()
+        return toDoListController.sections.count
     }
     
     override func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int {
@@ -90,7 +96,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         if sourceIndexPath.section != destinationIndexPath.section {
             
             // Get the new section
-            let section = toDoListController.toDoSectionforSectionIndex(destinationIndexPath.section)!
+            let section = toDoListController.sections[destinationIndexPath.section]
             
             // Update state
             toDo.edit() {
@@ -152,7 +158,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     
     override func tableView(tableView: UITableView!, titleForHeaderInSection section: Int) -> String! {
         
-        return toDoListController.toDoSectionforSectionIndex(section)?.title()
+        return toDoListController.sections[section].title()
     }
     
     override func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!) {
