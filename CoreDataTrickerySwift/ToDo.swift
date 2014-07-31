@@ -138,4 +138,12 @@ class ToDoListConfiguration: NSManagedObject {
         }
     }
 
+    func sectionsForCurrentConfiguration() -> [ToDoSection] {
+        switch ToDoListMode.fromRaw(listMode)! {
+        case .Simple:
+            return [.ToDo, .Done]
+        case .Prioritized:
+            return [.HighPriority, .MediumPriority, .LowPriority, .Done]
+        }
+    }
 }

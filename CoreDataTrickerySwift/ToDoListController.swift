@@ -22,6 +22,16 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
         if showsEmptySections == oldValue { return }
         
         // Notify delegate that sections will be changed
+        delegate?.controllerWillChangeContent?(toDosController)
+        
+        if showsEmptySections {        generateSectionInfoWithEmptySections(true)
+            notifyDelegateOfAddedEmptySections()
+        } else {
+            notifyDelegateOfRemovedEmptySections()
+            generateSectionInfoWithEmptySections(false)
+        }
+        
+        delegate?.controllerDidChangeContent?(toDosController)
     }
     }
     
@@ -59,8 +69,13 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     }
     
     func numberOfToDosInSection(section: Int) -> Int {
-        let sectionInfo = toDosController.sections[section] as NSFetchedResultsSectionInfo
-        return sectionInfo.numberOfObjects
+        let sectionInfo = sectionsInfo[section]
+        if let fetchedIndex = sectionInfo.fetchedIndex {
+            let fetchedInfo = toDosController.sections[fetchedIndex] as NSFetchedResultsSectionInfo
+            return fetchedInfo.numberOfObjects
+        } else {
+            return 0
+        }
     }
     
     func reloadData() {
@@ -99,13 +114,41 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     
     private func generateSectionInfoWithEmptySections(emptySections: Bool) {
         
-        sectionsInfo = []
-        
-        // Just get all the sections from the fetched results controller
-        for (fetchedIndex, sectionInfo) in enumerate(toDosController.sections as [NSFetchedResultsSectionInfo]) {
-            let section = ToDoSection.fromRaw(sectionInfo.name.toInt()!)
-            sectionsInfo.append(ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex))
+        if emptySections {
+            // Get all fetched sections
+            let fetchedSections = (toDosController.sections as [NSFetchedResultsSectionInfo]).map {
+                $0.name.toInt()!
+            }
+            
+            let configuration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
+            // Map sections to sectionInfo structs with section and its fetched index
+            sectionsInfo = configuration.sectionsForCurrentConfiguration().map {
+                ControllerSectionInfo(section: $0, fetchedIndex: find(fetchedSections, $0.toRaw()))
+            }
+            
+        } else {
+            // Just get all the sections from the fetched results controller
+            sectionsInfo = []
+            for (fetchedIndex, sectionInfo) in enumerate(toDosController.sections as [NSFetchedResultsSectionInfo]) {
+                let section = ToDoSection.fromRaw(sectionInfo.name.toInt()!)
+                sectionsInfo.append(ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex))
+            }
         }
-        
+    }
+    
+    private func notifyDelegateOfAddedEmptySections() {
+        for (index, sectionInfo) in enumerate(sectionsInfo) {
+            if !sectionInfo.fetchedIndex {
+                delegate?.controller?(toDosController, didChangeSection: nil, atIndex: index, forChangeType: .Insert)
+            }
+        }
+    }
+    
+    private func notifyDelegateOfRemovedEmptySections() {
+        for (index, sectionInfo) in enumerate(sectionsInfo) {
+            if !sectionInfo.fetchedIndex {
+                delegate?.controller?(toDosController, didChangeSection: nil, atIndex: index, forChangeType: .Delete)
+            }
+        }
     }
 }
