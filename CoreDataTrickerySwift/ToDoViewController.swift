@@ -106,10 +106,13 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
                 case .Done:
                     $0.done = true
                 case .HighPriority:
+                    $0.done = false
                     $0.priority = ToDoPriority.High.toRaw()
                 case .MediumPriority:
+                    $0.done = false
                     $0.priority = ToDoPriority.Medium.toRaw()
                 case .LowPriority:
+                    $0.done = false
                     $0.priority = ToDoPriority.Low.toRaw()
                 }
             }
