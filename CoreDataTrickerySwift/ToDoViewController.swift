@@ -70,7 +70,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }
     
     override func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int {
-        return toDoListController.numberOfToDosInSection(section)
+        return toDoListController.sections[section].numberOfObjects
     }
     
     override func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
@@ -96,11 +96,11 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         if sourceIndexPath.section != destinationIndexPath.section {
             
             // Get the new section
-            let section = toDoListController.sections[destinationIndexPath.section]
+            let sectionInfo = toDoListController.sections[destinationIndexPath.section]
             
             // Update state
             toDo.edit() {
-                switch section {
+                switch sectionInfo.section {
                 case .ToDo:
                     $0.done = false
                 case .Done:
@@ -124,7 +124,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         // Insert toDo at new place in array
         var sortedIndex = destinationIndexPath.row
         for sectionIndex in 0..<destinationIndexPath.section {
-            sortedIndex += toDoListController.numberOfToDosInSection(sectionIndex)
+            sortedIndex += toDoListController.sections[sectionIndex].numberOfObjects
             if sectionIndex == sourceIndexPath.section {
                 sortedIndex -= 1 // Remember, controller still thinks this toDo is in the old section
             }
@@ -157,8 +157,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }
     
     override func tableView(tableView: UITableView!, titleForHeaderInSection section: Int) -> String! {
-        
-        return toDoListController.sections[section].title()
+        return toDoListController.sections[section].name
     }
     
     override func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!) {
