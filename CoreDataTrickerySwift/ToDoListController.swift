@@ -58,6 +58,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     }
     
     var sections: [ControllerSectionInfo] = []
+    var oldSections: [ControllerSectionInfo] = []
     
     private lazy var toDosController: NSFetchedResultsController = {
         
@@ -86,7 +87,8 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     }
     
     func toDoAtIndexPath(indexPath: NSIndexPath) -> ToDo {
-        return toDosController.objectAtIndexPath(indexPath) as ToDo
+        let sectionInfo = sections[indexPath.section]
+        return toDosController.objectAtIndexPath(NSIndexPath(forRow: indexPath.row, inSection: sectionInfo.fetchedIndex!)) as ToDo
     }
     
     func reloadData() {
@@ -101,6 +103,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     // Start by just forwarding all calls
     
     func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
+        oldSections = sections
         delegate?.controllerWillChangeContent?(controller)
     }
     
@@ -109,11 +112,24 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
         // Regenerate all section info (I know this isn't Über-effective but it shouldn't take too much time)
         generateSectionInfoWithEmptySections(showsEmptySections)
         
-        delegate?.controller?(controller, didChangeSection: sectionInfo, atIndex: sectionIndex, forChangeType: type)
+        // If we show empty sections, fetched changes don't affect us
+        if !showsEmptySections {
+            delegate?.controller?(controller, didChangeSection: sectionInfo, atIndex: sectionIndex, forChangeType: type)
+        }
     }
     
     func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
-        delegate?.controller?(controller, didChangeObject: anObject, atIndexPath: indexPath, forChangeType: type, newIndexPath: newIndexPath)
+        
+        var convertedOldIndexPath: NSIndexPath?
+        if indexPath {
+            convertedOldIndexPath = oldIndexPathForFetchedIndexPath(indexPath)
+        }
+        var convertedNewIndexPath: NSIndexPath?
+        if newIndexPath {
+            convertedNewIndexPath = newIndexPathForFetchedIndexPath(newIndexPath)
+        }
+                
+        delegate?.controller?(controller, didChangeObject: anObject, atIndexPath: convertedOldIndexPath, forChangeType: type, newIndexPath: convertedNewIndexPath)
     }
     
     func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
@@ -162,5 +178,23 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
                 delegate?.controller?(toDosController, didChangeSection: nil, atIndex: index, forChangeType: .Delete)
             }
         }
+    }
+    
+    private func oldIndexPathForFetchedIndexPath(fetchedIndexPath: NSIndexPath) -> NSIndexPath! {
+        for (sectionIndex, sectionInfo) in enumerate(oldSections) {
+            if sectionInfo.fetchedIndex == fetchedIndexPath.section {
+                return NSIndexPath(forRow: fetchedIndexPath.row, inSection: sectionIndex)
+            }
+        }
+        return nil
+    }
+    
+    private func newIndexPathForFetchedIndexPath(fetchedIndexPath: NSIndexPath) -> NSIndexPath! {
+        for (sectionIndex, sectionInfo) in enumerate(sections) {
+            if sectionInfo.fetchedIndex == fetchedIndexPath.section {
+                return NSIndexPath(forRow: fetchedIndexPath.row, inSection: sectionIndex)
+            }
+        }
+        return nil
     }
 }
