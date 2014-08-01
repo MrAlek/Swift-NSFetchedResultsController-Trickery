@@ -46,7 +46,8 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
         // Notify delegate that sections will be changed
         delegate?.controllerWillChangeContent?(toDosController)
         
-        if showsEmptySections {        generateSectionInfoWithEmptySections(true)
+        if showsEmptySections {
+            generateSectionInfoWithEmptySections(true)
             notifyDelegateOfAddedEmptySections()
         } else {
             notifyDelegateOfRemovedEmptySections()
@@ -120,15 +121,9 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     
     func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
         
-        var convertedOldIndexPath: NSIndexPath?
-        if indexPath {
-            convertedOldIndexPath = oldIndexPathForFetchedIndexPath(indexPath)
-        }
-        var convertedNewIndexPath: NSIndexPath?
-        if newIndexPath {
-            convertedNewIndexPath = newIndexPathForFetchedIndexPath(newIndexPath)
-        }
-                
+        var convertedOldIndexPath = realIndexPathForFetchedIndexPath(indexPath, sections: oldSections)
+        var convertedNewIndexPath = realIndexPathForFetchedIndexPath(indexPath, sections: sections)
+        
         delegate?.controller?(controller, didChangeObject: anObject, atIndexPath: convertedOldIndexPath, forChangeType: type, newIndexPath: convertedNewIndexPath)
     }
     
@@ -180,19 +175,12 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
         }
     }
     
-    private func oldIndexPathForFetchedIndexPath(fetchedIndexPath: NSIndexPath) -> NSIndexPath! {
-        for (sectionIndex, sectionInfo) in enumerate(oldSections) {
-            if sectionInfo.fetchedIndex == fetchedIndexPath.section {
-                return NSIndexPath(forRow: fetchedIndexPath.row, inSection: sectionIndex)
-            }
-        }
-        return nil
-    }
-    
-    private func newIndexPathForFetchedIndexPath(fetchedIndexPath: NSIndexPath) -> NSIndexPath! {
-        for (sectionIndex, sectionInfo) in enumerate(sections) {
-            if sectionInfo.fetchedIndex == fetchedIndexPath.section {
-                return NSIndexPath(forRow: fetchedIndexPath.row, inSection: sectionIndex)
+    private func realIndexPathForFetchedIndexPath(fetchedIndexPath: NSIndexPath?, sections: [ControllerSectionInfo]) -> NSIndexPath? {
+        if fetchedIndexPath {
+            for (sectionIndex, sectionInfo) in enumerate(sections) {
+                if sectionInfo.fetchedIndex == fetchedIndexPath!.section {
+                    return NSIndexPath(forRow: fetchedIndexPath!.row, inSection: sectionIndex)
+                }
             }
         }
         return nil
