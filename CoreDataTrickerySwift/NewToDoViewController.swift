@@ -18,7 +18,6 @@ class NewToDoViewController: UIViewController {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        
         textField.becomeFirstResponder()
     }
     
@@ -29,7 +28,7 @@ class NewToDoViewController: UIViewController {
     @IBAction func saveButtonPresse() {
         let maxInternalOrder = ToDo.maxInternalOrder(self.managedObjectContext)
         ToDo.newToDoInContext(self.managedObjectContext) {
-            (toDo: ToDo) -> Void in
+            toDo in
             toDo.title = self.textField.text
             toDo.internalOrder = maxInternalOrder+1
             toDo.priority = self.selectedPriority().toRaw()

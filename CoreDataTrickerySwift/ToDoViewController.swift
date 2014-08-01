@@ -21,8 +21,9 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         return controller
     }()
     
-    private var ignoreUpdates: Bool = false
     @IBOutlet weak var modeControl: UISegmentedControl!
+    
+    private var ignoreUpdates: Bool = false
     
     // 
     // View lifecycle
@@ -30,7 +31,6 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         navigationItem.leftBarButtonItem = editButtonItem()
     }
     
@@ -77,7 +77,6 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }
     
     override func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
-        
         let cell = tableView.dequeueReusableCellWithIdentifier("cell") as UITableViewCell
         let toDo = toDoListController.toDoAtIndexPath(indexPath)
         configureCell(cell, toDo:toDo)
@@ -167,7 +166,6 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }
     
     override func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!) {
-        
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
         let toDo = toDoListController.toDoAtIndexPath(indexPath)
@@ -224,7 +222,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         case .Move:
             if !contains(sectionsBeingAdded, newIndexPath.section) && !contains(sectionsBeingRemoved, indexPath.section) {
                 tableView.moveRowAtIndexPath(indexPath, toIndexPath: newIndexPath)
-            } else {
+            } else { // Stupid and ugly, rdar://17684030
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
                 tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
             }
