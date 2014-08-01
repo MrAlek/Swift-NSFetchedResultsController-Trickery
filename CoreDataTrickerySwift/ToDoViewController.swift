@@ -22,6 +22,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }()
     
     private var ignoreUpdates: Bool = false
+    @IBOutlet weak var modeControl: UISegmentedControl!
     
     // 
     // View lifecycle
@@ -37,6 +38,8 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         super.setEditing(editing, animated: animated)
         
         toDoListController.showsEmptySections = editing
+        modeControl.enabled = !editing
+        modeControl.userInteractionEnabled = !editing // Needs to set because of bug in iOS 8 beta 4 rdar://17881987
     }
     
     //
