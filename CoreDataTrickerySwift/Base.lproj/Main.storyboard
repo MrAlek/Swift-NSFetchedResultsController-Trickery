@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6185.11" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="puR-qM-r1Z">
     <dependencies>
+        <deployment defaultVersion="1808" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6190.4"/>
     </dependencies>
     <scenes>
@@ -36,8 +37,14 @@
                             <outlet property="delegate" destination="ZyJ-xS-6Cd" id="VE4-6M-gS9"/>
                         </connections>
                     </tableView>
+                    <toolbarItems/>
                     <navigationItem key="navigationItem" id="fK3-sW-HK0">
                         <nil key="title"/>
+                        <barButtonItem key="leftBarButtonItem" systemItem="edit" id="rJk-hX-3a6">
+                            <connections>
+                                <action selector="toggleEditing" destination="ZyJ-xS-6Cd" id="pnw-HS-z5L"/>
+                            </connections>
+                        </barButtonItem>
                         <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="3No-Zh-j9i">
                             <rect key="frame" x="84.5" y="6.5" width="151" height="31"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -55,11 +62,19 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="doneBarButtonItem" destination="vNd-oa-ZzQ" id="4Gc-WR-u2j"/>
+                        <outlet property="editBarButtonItem" destination="rJk-hX-3a6" id="nFJ-ff-6tv"/>
                         <outlet property="modeControl" destination="3No-Zh-j9i" id="NLN-ds-Iax"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LHK-Xl-0rP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <barButtonItem systemItem="done" id="vNd-oa-ZzQ">
+                    <connections>
+                        <action selector="toggleEditing" destination="ZyJ-xS-6Cd" id="l01-1e-10F"/>
+                    </connections>
+                </barButtonItem>
             </objects>
             <point key="canvasLocation" x="886" y="196"/>
         </scene>

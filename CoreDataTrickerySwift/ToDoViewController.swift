@@ -22,6 +22,8 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }()
     
     @IBOutlet weak var modeControl: UISegmentedControl!
+    @IBOutlet var editBarButtonItem: UIBarButtonItem!
+    @IBOutlet var doneBarButtonItem: UIBarButtonItem!
     
     private var ignoreUpdates: Bool = false
     
@@ -29,15 +31,15 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     // View lifecycle
     //
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        navigationItem.leftBarButtonItem = editButtonItem()
-    }
-    
     override func setEditing(editing: Bool, animated: Bool)  {
         super.setEditing(editing, animated: animated)
         
-        toDoListController.showsEmptySections = editing
+        if editing {
+            navigationItem.leftBarButtonItem = doneBarButtonItem
+        } else {
+            navigationItem.leftBarButtonItem = editBarButtonItem
+        }
+        
         modeControl.enabled = !editing
         modeControl.userInteractionEnabled = !editing // Needs to set because of bug in iOS 8 beta 4 rdar://17881987
     }
@@ -45,6 +47,11 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     //
     // User interaction
     //
+    
+    @IBAction func toggleEditing() {
+        setEditing(!editing, animated: true)
+        toDoListController.showsEmptySections = editing
+    }
     
     override func prepareForSegue(segue: UIStoryboardSegue!, sender: AnyObject!) {
         if segue.identifier == "present new to do" {
