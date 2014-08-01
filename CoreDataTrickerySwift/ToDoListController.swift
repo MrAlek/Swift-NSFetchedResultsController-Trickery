@@ -122,7 +122,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
         
         var convertedOldIndexPath = realIndexPathForFetchedIndexPath(indexPath, sections: oldSections)
-        var convertedNewIndexPath = realIndexPathForFetchedIndexPath(indexPath, sections: sections)
+        var convertedNewIndexPath = realIndexPathForFetchedIndexPath(newIndexPath, sections: sections)
         
         delegate?.controller?(controller, didChangeObject: anObject, atIndexPath: convertedOldIndexPath, forChangeType: type, newIndexPath: convertedNewIndexPath)
     }
