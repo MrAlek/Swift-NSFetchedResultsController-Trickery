@@ -125,6 +125,11 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
                     $0.priority = ToDoPriority.Low.toRaw()
                 }
             }
+            
+            // Update cell
+            NSOperationQueue.mainQueue().addOperationWithBlock { // Table view is in inconsistent state, gotta wait
+                self.configureCell(tableView.cellForRowAtIndexPath(destinationIndexPath), toDo: toDo)
+            }
         }
         
         // Now update internal order to reflect new position
@@ -229,6 +234,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         case .Move:
             if !contains(sectionsBeingAdded, newIndexPath.section) && !contains(sectionsBeingRemoved, indexPath.section) {
                 tableView.moveRowAtIndexPath(indexPath, toIndexPath: newIndexPath)
+                configureCell(tableView.cellForRowAtIndexPath(indexPath), toDo: anObject as ToDo)
             } else { // Stupid and ugly, rdar://17684030
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
                 tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
@@ -252,6 +258,11 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     
     func configureCell(cell: UITableViewCell, toDo: ToDo) {
         cell.textLabel.text = toDo.title
+        if toDo.done.boolValue {
+            cell.textLabel.textColor = UIColor.lightGrayColor()
+        } else {
+            cell.textLabel.textColor = UIColor.blackColor()
+        }
     }
     
 }
