@@ -2,18 +2,23 @@
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6208.6" systemVersion="13E28" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="ToDo" representedClassName="ToDo" syncable="YES">
         <attribute name="done" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
-        <attribute name="internalOrder" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <attribute name="priority" attributeType="Integer 32" defaultValueString="2" syncable="YES"/>
-        <attribute name="sectionIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="listConfiguration" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ToDoListConfiguration" inverseName="toDos" inverseEntity="ToDoListConfiguration" syncable="YES"/>
+        <relationship name="metaData" maxCount="1" deletionRule="Cascade" destinationEntity="ToDoMetaData" inverseName="toDo" inverseEntity="ToDoMetaData" syncable="YES"/>
     </entity>
     <entity name="ToDoListConfiguration" representedClassName="ToDoListConfiguration" syncable="YES">
         <attribute name="listMode" attributeType="Integer 32" defaultValueString="1" syncable="YES"/>
-        <relationship name="toDos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ToDo" inverseName="listConfiguration" inverseEntity="ToDo" syncable="YES"/>
+        <relationship name="toDoMetaData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ToDoMetaData" inverseName="listConfiguration" inverseEntity="ToDoMetaData" syncable="YES"/>
+    </entity>
+    <entity name="ToDoMetaData" representedClassName="ToDoMetaData" syncable="YES">
+        <attribute name="internalOrder" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="sectionIdentifier" attributeType="String" syncable="YES"/>
+        <relationship name="listConfiguration" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ToDoListConfiguration" inverseName="toDoMetaData" inverseEntity="ToDoListConfiguration" syncable="YES"/>
+        <relationship name="toDo" maxCount="1" deletionRule="Nullify" destinationEntity="ToDo" inverseName="metaData" inverseEntity="ToDo" syncable="YES"/>
     </entity>
     <elements>
-        <element name="ToDo" positionX="-263" positionY="-40" width="128" height="133"/>
-        <element name="ToDoListConfiguration" positionX="-63" positionY="36" width="128" height="73"/>
+        <element name="ToDo" positionX="-198" positionY="-27" width="128" height="103"/>
+        <element name="ToDoListConfiguration" positionX="133" positionY="-27" width="128" height="73"/>
+        <element name="ToDoMetaData" positionX="-38" positionY="-27" width="128" height="103"/>
     </elements>
 </model>

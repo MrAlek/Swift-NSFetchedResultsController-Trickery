@@ -64,9 +64,10 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     private lazy var toDosController: NSFetchedResultsController = {
         
         let fetchRequest = NSFetchRequest(entityName: ToDo.entityName())
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true), NSSortDescriptor(key: "internalOrder", ascending: false)]
+        fetchRequest.includesSubentities = true
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "metaData.sectionIdentifier", ascending: true), NSSortDescriptor(key: "metaData.internalOrder", ascending: false)]
         
-        let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext, sectionNameKeyPath: "sectionIdentifier", cacheName: nil)
+        let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext, sectionNameKeyPath: "metaData.sectionIdentifier", cacheName: nil)
         
         controller.performFetch(nil)
         controller.delegate = self

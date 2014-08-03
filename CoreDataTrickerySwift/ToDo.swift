@@ -35,44 +35,31 @@ enum ToDoPriority: Int {
 
 @objc(ToDo)
 class ToDo: NSManagedObject {
-    
     class func entityName() -> NSString {return "ToDo"}
 
     @NSManaged var title: String
     @NSManaged var done: NSNumber
     @NSManaged var priority: NSNumber
+    @NSManaged var metaData: ToDoMetaData
+    
+    override func awakeFromInsert() {
+        super.awakeFromInsert()
+        metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName(), inManagedObjectContext: managedObjectContext) as ToDoMetaData
+    }
+}
+
+@objc(ToDoMetaData)
+class ToDoMetaData: NSManagedObject {
+    class func entityName() -> NSString {return "ToDoMetaData"}
+
     @NSManaged var internalOrder: NSNumber
     @NSManaged var sectionIdentifier: NSString
-    
+    @NSManaged var toDo: ToDo
     @NSManaged var listConfiguration: ToDoListConfiguration
-    
-    class func newToDoInContext(context: NSManagedObjectContext, configurationBlock: ((toDo: ToDo)->Void)) -> ToDo {
-        
-        var toDo = NSEntityDescription.insertNewObjectForEntityForName(entityName(), inManagedObjectContext: context) as ToDo
-        
-        configurationBlock(toDo: toDo)
-        toDo.listConfiguration = ToDoListConfiguration.defaultConfiguration(context)
-        toDo.updateSectionIdentifier()
-        
-        return toDo;
-    }
-    
-    func updateSectionIdentifier() {
-        sectionIdentifier = String(sectionForCurrentState().toRaw())
-    }
-    
-    func sectionForCurrentState() -> ToDoSection {
-        if done.boolValue {
-            return .Done
-        } else if ToDoListMode.fromRaw(listConfiguration.listMode) == ToDoListMode.Simple {
-            return .ToDo
-        } else {
-            switch ToDoPriority.fromRaw(priority) as ToDoPriority {
-            case .Low:      return .LowPriority
-            case .Medium:   return .MediumPriority
-            case .High:     return .HighPriority
-            }
-        }
+
+    override func awakeFromInsert() {
+        super.awakeFromInsert()
+        listConfiguration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
     }
     
     class func maxInternalOrder(context: NSManagedObjectContext) -> Int {
@@ -98,11 +85,23 @@ class ToDo: NSManagedObject {
         return maxInternalOrder
     }
     
-    func edit(configurationBlock: ((toDo: ToDo)->Void)) {
-        configurationBlock(toDo: self)
-        updateSectionIdentifier()
+    func updateSectionIdentifier() {
+        sectionIdentifier = String(sectionForCurrentState().toRaw())
     }
-
+    
+    func sectionForCurrentState() -> ToDoSection {
+        if toDo.done.boolValue {
+            return .Done
+        } else if ToDoListMode.fromRaw(listConfiguration.listMode) == ToDoListMode.Simple {
+            return .ToDo
+        } else {
+            switch ToDoPriority.fromRaw(toDo.priority) as ToDoPriority {
+            case .Low:      return .LowPriority
+            case .Medium:   return .MediumPriority
+            case .High:     return .HighPriority
+            }
+        }
+    }
 }
 
 enum ToDoListMode: Int {
@@ -112,11 +111,10 @@ enum ToDoListMode: Int {
 
 @objc(ToDoListConfiguration)
 class ToDoListConfiguration: NSManagedObject {
+    class func entityName() -> NSString {return "ToDoListConfiguration"}
     
     @NSManaged private var listMode: NSNumber
-    @NSManaged var toDos: NSSet
-    
-    class func entityName() -> NSString {return "ToDoListConfiguration"}
+    @NSManaged var toDoMetaData: NSSet
     
     class func defaultConfiguration(context: NSManagedObjectContext) -> ToDoListConfiguration {
         
@@ -132,8 +130,8 @@ class ToDoListConfiguration: NSManagedObject {
     
     func setListMode(mode: ToDoListMode) {
         listMode = mode.toRaw()
-        for toDo in toDos.allObjects as [ToDo] {
-            toDo.updateSectionIdentifier()
+        for metaData in toDoMetaData.allObjects as [ToDoMetaData] {
+            metaData.updateSectionIdentifier()
         }
     }
 

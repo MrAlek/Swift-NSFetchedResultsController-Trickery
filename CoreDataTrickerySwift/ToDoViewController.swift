@@ -108,23 +108,22 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
             let sectionInfo = toDoListController.sections[destinationIndexPath.section]
             
             // Update state
-            toDo.edit() {
-                switch sectionInfo.section {
-                case .ToDo:
-                    $0.done = false
-                case .Done:
-                    $0.done = true
-                case .HighPriority:
-                    $0.done = false
-                    $0.priority = ToDoPriority.High.toRaw()
-                case .MediumPriority:
-                    $0.done = false
-                    $0.priority = ToDoPriority.Medium.toRaw()
-                case .LowPriority:
-                    $0.done = false
-                    $0.priority = ToDoPriority.Low.toRaw()
-                }
+            switch sectionInfo.section {
+            case .ToDo:
+                toDo.done = false
+            case .Done:
+                toDo.done = true
+            case .HighPriority:
+                toDo.done = false
+                toDo.priority = ToDoPriority.High.toRaw()
+            case .MediumPriority:
+                toDo.done = false
+                toDo.priority = ToDoPriority.Medium.toRaw()
+            case .LowPriority:
+                toDo.done = false
+                toDo.priority = ToDoPriority.Low.toRaw()
             }
+            toDo.metaData.updateSectionIdentifier()
             
             // Update cell
             NSOperationQueue.mainQueue().addOperationWithBlock { // Table view is in inconsistent state, gotta wait
@@ -150,9 +149,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         
         // Regenerate internal order for all toDos
         for (index, toDo) in enumerate(sortedToDos) {
-            toDo.edit() {
-                $0.internalOrder = sortedToDos.count-index
-            }
+            toDo.metaData.internalOrder = sortedToDos.count-index
         }
         
         // Save
@@ -181,7 +178,8 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
         let toDo = toDoListController.toDoAtIndexPath(indexPath)
-        toDo.edit() { $0.done = !$0.done.boolValue }
+        toDo.done = !toDo.done.boolValue
+        toDo.metaData.updateSectionIdentifier()
         toDo.managedObjectContext.save(nil)
     }
     

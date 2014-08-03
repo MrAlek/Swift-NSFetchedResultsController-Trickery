@@ -26,13 +26,12 @@ class NewToDoViewController: UIViewController {
     }
     
     @IBAction func saveButtonPresse() {
-        let maxInternalOrder = ToDo.maxInternalOrder(self.managedObjectContext)
-        ToDo.newToDoInContext(self.managedObjectContext) {
-            toDo in
-            toDo.title = self.textField.text
-            toDo.internalOrder = maxInternalOrder+1
-            toDo.priority = self.selectedPriority().toRaw()
-        }
+        
+        let toDo = NSEntityDescription.insertNewObjectForEntityForName(ToDo.entityName(), inManagedObjectContext: managedObjectContext) as ToDo
+        toDo.title = self.textField.text
+        toDo.priority = self.selectedPriority().toRaw()
+        toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(managedObjectContext)+1
+        toDo.metaData.updateSectionIdentifier()
         managedObjectContext.save(nil)
         
         dismissViewControllerAnimated(true, completion: nil)
