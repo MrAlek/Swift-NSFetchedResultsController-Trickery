@@ -10,33 +10,6 @@ import CoreData
 
 class ToDoListController: NSFetchedResultsControllerDelegate {
     
-    class ControllerSectionInfo: NSFetchedResultsSectionInfo {
-        let section: ToDoSection
-        let fetchedIndex: Int?
-        private let fetchController: NSFetchedResultsController
-        
-        init(section: ToDoSection, fetchedIndex: Int?, fetchController: NSFetchedResultsController) {
-            self.section = section
-            self.fetchedIndex = fetchedIndex
-            self.fetchController = fetchController
-        }
-        
-        var name: String! { return section.title() }
-        var indexTitle: String! { return nil }
-        var numberOfObjects: Int {
-            if fetchedInfo { return fetchedInfo!.numberOfObjects }
-            else { return 0 }
-        }
-        var objects: [AnyObject]! { return fetchedInfo?.objects }
-        var fetchedInfo: NSFetchedResultsSectionInfo? {
-            if fetchedIndex {
-                return fetchController.sections[fetchedIndex!] as? NSFetchedResultsSectionInfo
-            } else {
-                return nil
-            }
-        }
-    }
-    
     var delegate: NSFetchedResultsControllerDelegate?
     
     var showsEmptySections: Bool = false {
@@ -63,11 +36,11 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     
     private lazy var toDosController: NSFetchedResultsController = {
         
-        let fetchRequest = NSFetchRequest(entityName: ToDo.entityName())
+        let fetchRequest = NSFetchRequest(entityName: ToDoMetaData.entityName())
         fetchRequest.includesSubentities = true
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "metaData.sectionIdentifier", ascending: true), NSSortDescriptor(key: "metaData.internalOrder", ascending: false)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true), NSSortDescriptor(key: "internalOrder", ascending: false)]
         
-        let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext, sectionNameKeyPath: "metaData.sectionIdentifier", cacheName: nil)
+        let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext, sectionNameKeyPath: "sectionIdentifier", cacheName: nil)
         
         controller.performFetch(nil)
         controller.delegate = self
@@ -85,12 +58,14 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     }
     
     func fetchedToDos() -> [ToDo] {
-        return toDosController.fetchedObjects as [ToDo]
+        let metaData = toDosController.fetchedObjects as [ToDoMetaData]
+        return metaData.map {$0.toDo}
     }
     
     func toDoAtIndexPath(indexPath: NSIndexPath) -> ToDo {
         let sectionInfo = sections[indexPath.section]
-        return toDosController.objectAtIndexPath(NSIndexPath(forRow: indexPath.row, inSection: sectionInfo.fetchedIndex!)) as ToDo
+        let metaData = toDosController.objectAtIndexPath(NSIndexPath(forRow: indexPath.row, inSection: sectionInfo.fetchedIndex!)) as ToDoMetaData
+        return metaData.toDo
     }
     
     func reloadData() {
@@ -125,7 +100,9 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
         var convertedOldIndexPath = realIndexPathForFetchedIndexPath(indexPath, sections: oldSections)
         var convertedNewIndexPath = realIndexPathForFetchedIndexPath(newIndexPath, sections: sections)
         
-        delegate?.controller?(controller, didChangeObject: anObject, atIndexPath: convertedOldIndexPath, forChangeType: type, newIndexPath: convertedNewIndexPath)
+        let metaData = anObject as ToDoMetaData
+        
+        delegate?.controller?(controller, didChangeObject: metaData.toDo, atIndexPath: convertedOldIndexPath, forChangeType: type, newIndexPath: convertedNewIndexPath)
     }
     
     func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
@@ -185,5 +162,32 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
             }
         }
         return nil
+    }
+}
+
+class ControllerSectionInfo: NSFetchedResultsSectionInfo {
+    let section: ToDoSection
+    let fetchedIndex: Int?
+    private let fetchController: NSFetchedResultsController
+    
+    init(section: ToDoSection, fetchedIndex: Int?, fetchController: NSFetchedResultsController) {
+        self.section = section
+        self.fetchedIndex = fetchedIndex
+        self.fetchController = fetchController
+    }
+    
+    var name: String! { return section.title() }
+    var indexTitle: String! { return nil }
+    var numberOfObjects: Int {
+    if fetchedInfo { return fetchedInfo!.numberOfObjects }
+    else { return 0 }
+    }
+    var objects: [AnyObject]! { return fetchedInfo?.objects }
+    var fetchedInfo: NSFetchedResultsSectionInfo? {
+    if fetchedIndex {
+        return fetchController.sections[fetchedIndex!] as? NSFetchedResultsSectionInfo
+    } else {
+        return nil
+        }
     }
 }
