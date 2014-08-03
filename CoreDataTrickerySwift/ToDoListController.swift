@@ -38,7 +38,8 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
         
         let fetchRequest = NSFetchRequest(entityName: ToDoMetaData.entityName())
         fetchRequest.includesSubentities = true
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true), NSSortDescriptor(key: "internalOrder", ascending: false)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true),
+            NSSortDescriptor(key: "internalOrder", ascending: false)]
         
         let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext, sectionNameKeyPath: "sectionIdentifier", cacheName: nil)
         

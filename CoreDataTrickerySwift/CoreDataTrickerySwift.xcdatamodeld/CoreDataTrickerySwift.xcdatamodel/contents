@@ -11,8 +11,8 @@
         <relationship name="toDoMetaData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ToDoMetaData" inverseName="listConfiguration" inverseEntity="ToDoMetaData" syncable="YES"/>
     </entity>
     <entity name="ToDoMetaData" representedClassName="ToDoMetaData" syncable="YES">
-        <attribute name="internalOrder" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
-        <attribute name="sectionIdentifier" attributeType="String" syncable="YES"/>
+        <attribute name="internalOrder" attributeType="Integer 32" defaultValueString="0" indexed="YES" syncable="YES"/>
+        <attribute name="sectionIdentifier" attributeType="String" indexed="YES" syncable="YES"/>
         <relationship name="listConfiguration" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ToDoListConfiguration" inverseName="toDoMetaData" inverseEntity="ToDoListConfiguration" syncable="YES"/>
         <relationship name="toDo" maxCount="1" deletionRule="Nullify" destinationEntity="ToDo" inverseName="metaData" inverseEntity="ToDo" syncable="YES"/>
     </entity>
