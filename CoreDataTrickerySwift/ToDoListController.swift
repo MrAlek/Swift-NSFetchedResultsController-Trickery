@@ -37,7 +37,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     private lazy var toDosController: NSFetchedResultsController = {
         
         let fetchRequest = NSFetchRequest(entityName: ToDoMetaData.entityName())
-        fetchRequest.includesSubentities = true
+        fetchRequest.relationshipKeyPathsForPrefetching = ["toDo"]
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true),
             NSSortDescriptor(key: "internalOrder", ascending: false)]
         
