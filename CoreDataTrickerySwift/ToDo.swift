@@ -39,7 +39,6 @@ class ToDo: NSManagedObject {
     class func entityName() -> NSString {return "ToDo"}
 
     @NSManaged var title: String
-    @NSManaged var due: NSDate?
     @NSManaged var done: NSNumber
     @NSManaged var priority: NSNumber
     @NSManaged var internalOrder: NSNumber
