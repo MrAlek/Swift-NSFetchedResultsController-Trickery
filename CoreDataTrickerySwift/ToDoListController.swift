@@ -117,9 +117,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
         
         if emptySections {
             // Get all fetched sections
-            let fetchedSections = (toDosController.sections as [NSFetchedResultsSectionInfo]).map {
-                $0.name.toInt()!
-            }
+            let fetchedSections = (toDosController.sections as [NSFetchedResultsSectionInfo]).map {$0.name!}
             
             let configuration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
             // Map sections to sectionInfo structs with section and its fetched index
@@ -131,7 +129,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
             // Just get all the sections from the fetched results controller
             sections = []
             for (fetchedIndex, sectionInfo) in enumerate(toDosController.sections as [NSFetchedResultsSectionInfo]) {
-                let section = ToDoSection.fromRaw(sectionInfo.name.toInt()!)!
+                let section = ToDoSection.fromRaw(sectionInfo.name!)!
                 sections.append(ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex, fetchController: self.toDosController))
             }
         }

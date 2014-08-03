@@ -9,12 +9,12 @@
 import Foundation
 import CoreData
 
-enum ToDoSection: Int {
-    case ToDo = 10
-    case HighPriority = 11
-    case MediumPriority = 12
-    case LowPriority = 13
-    case Done = 20
+enum ToDoSection: String {
+    case ToDo = "10"
+    case HighPriority = "11"
+    case MediumPriority = "12"
+    case LowPriority = "13"
+    case Done = "20"
     
     func title() -> String {
         switch self {
