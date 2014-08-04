@@ -31,8 +31,8 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     }
     }
     
-    var sections: [ControllerSectionInfo] = []
-    var oldSections: [ControllerSectionInfo] = []
+    private var sections: [ControllerSectionInfo] = []
+    private var oldSections: [ControllerSectionInfo] = []
     
     private lazy var toDosController: NSFetchedResultsController = {
         
