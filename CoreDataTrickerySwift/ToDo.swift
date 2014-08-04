@@ -86,7 +86,7 @@ class ToDoMetaData: NSManagedObject {
     }
     
     func updateSectionIdentifier() {
-        sectionIdentifier = String(sectionForCurrentState().toRaw())
+        sectionIdentifier = sectionForCurrentState().toRaw()
     }
     
     func sectionForCurrentState() -> ToDoSection {
