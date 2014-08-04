@@ -78,8 +78,6 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     // Fetched results controller delegate
     //
     
-    // Start by just forwarding all calls
-    
     func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
         oldSections = sections
         delegate?.controllerWillChangeContent?(controller)

@@ -57,11 +57,6 @@ class ToDoMetaData: NSManagedObject {
     @NSManaged var toDo: ToDo
     @NSManaged var listConfiguration: ToDoListConfiguration
 
-    override func awakeFromInsert() {
-        super.awakeFromInsert()
-        listConfiguration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
-    }
-    
     class func maxInternalOrder(context: NSManagedObjectContext) -> Int {
         
         var maxInternalOrder = 0
@@ -85,11 +80,35 @@ class ToDoMetaData: NSManagedObject {
         return maxInternalOrder
     }
     
+    override func awakeFromInsert() {
+        super.awakeFromInsert()
+        listConfiguration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
+    }
+
+    func setSection(section: ToDoSection) {
+        switch section {
+        case .ToDo:
+            toDo.done = false
+        case .Done:
+            toDo.done = true
+        case .HighPriority:
+            toDo.done = false
+            toDo.priority = ToDoPriority.High.toRaw()
+        case .MediumPriority:
+            toDo.done = false
+            toDo.priority = ToDoPriority.Medium.toRaw()
+        case .LowPriority:
+            toDo.done = false
+            toDo.priority = ToDoPriority.Low.toRaw()
+        }
+        sectionIdentifier = section.toRaw()
+    }
+    
     func updateSectionIdentifier() {
         sectionIdentifier = sectionForCurrentState().toRaw()
     }
     
-    func sectionForCurrentState() -> ToDoSection {
+    private func sectionForCurrentState() -> ToDoSection {
         if toDo.done.boolValue {
             return .Done
         } else if ToDoListMode.fromRaw(listConfiguration.listMode) == ToDoListMode.Simple {

@@ -111,7 +111,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         if sourceIndexPath.section != destinationIndexPath.section {
             
             let sectionInfo = toDoListController.sections[destinationIndexPath.section]
-            updateToDoForSection(toDo, section: sectionInfo.section)
+            toDo.metaData.setSection(sectionInfo.section)
             
             // Update cell
             NSOperationQueue.mainQueue().addOperationWithBlock { // Table view is in inconsistent state, gotta wait
@@ -164,25 +164,6 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         } else {
             cell.textLabel.textColor = UIColor.blackColor()
         }
-    }
-    
-    private func updateToDoForSection(toDo: ToDo, section: ToDoSection) {
-        switch section {
-        case .ToDo:
-            toDo.done = false
-        case .Done:
-            toDo.done = true
-        case .HighPriority:
-            toDo.done = false
-            toDo.priority = ToDoPriority.High.toRaw()
-        case .MediumPriority:
-            toDo.done = false
-            toDo.priority = ToDoPriority.Medium.toRaw()
-        case .LowPriority:
-            toDo.done = false
-            toDo.priority = ToDoPriority.Low.toRaw()
-        }
-        toDo.metaData.updateSectionIdentifier()
     }
     
     private func updateInternalOrderForToDo(toDo: ToDo, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
