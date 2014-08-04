@@ -15,6 +15,7 @@
 		934CA8CF1976E958004C29EB /* ToDoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934CA8CE1976E958004C29EB /* ToDoViewController.swift */; };
 		934CA8D91977E558004C29EB /* ToDo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934CA8D81977E558004C29EB /* ToDo.swift */; };
 		93E40D5D197D0B0900B1BEB5 /* NewToDoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E40D5C197D0B0900B1BEB5 /* NewToDoViewController.swift */; };
+		93FFE00C198F95470065ED21 /* FetchControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FFE00B198F95470065ED21 /* FetchControllerDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		934CA8CE1976E958004C29EB /* ToDoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDoViewController.swift; sourceTree = "<group>"; };
 		934CA8D81977E558004C29EB /* ToDo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ToDo.swift; sourceTree = "<group>"; };
 		93E40D5C197D0B0900B1BEB5 /* NewToDoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewToDoViewController.swift; sourceTree = "<group>"; };
+		93FFE00B198F95470065ED21 /* FetchControllerDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FetchControllerDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				934CA8AE1976E807004C29EB /* AppDelegate.swift */,
+				93FFE00B198F95470065ED21 /* FetchControllerDelegate.swift */,
 				93E40D5C197D0B0900B1BEB5 /* NewToDoViewController.swift */,
 				934CA8D81977E558004C29EB /* ToDo.swift */,
 				930E657219896E0400655D55 /* ToDoListController.swift */,
@@ -150,6 +153,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93FFE00C198F95470065ED21 /* FetchControllerDelegate.swift in Sources */,
 				93E40D5D197D0B0900B1BEB5 /* NewToDoViewController.swift in Sources */,
 				934CA8AF1976E807004C29EB /* AppDelegate.swift in Sources */,
 				934CA8CF1976E958004C29EB /* ToDoViewController.swift in Sources */,

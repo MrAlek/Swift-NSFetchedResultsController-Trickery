@@ -12,11 +12,20 @@ import CoreData
 class ToDoViewController: UITableViewController, NSFetchedResultsControllerDelegate {
     
     var managedObjectContext: NSManagedObjectContext!
-    
+    lazy var fetchControllerDelegate: FetchControllerDelegate = {
+        
+        let delegate = FetchControllerDelegate(tableView: self.tableView)
+        delegate.onUpdate = {
+            (cell: UITableViewCell, object: AnyObject) in
+            self.configureCell(cell, toDo: object as ToDo)
+        }
+        
+        return delegate
+    }()
     lazy var toDoListController: ToDoListController = {
         
         let controller = ToDoListController(managedObjectContext: self.managedObjectContext)
-        controller.delegate = self
+        controller.delegate = self.fetchControllerDelegate
         
         return controller
     }()
@@ -25,7 +34,6 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     @IBOutlet var editBarButtonItem: UIBarButtonItem!
     @IBOutlet var doneBarButtonItem: UIBarButtonItem!
     
-    private var ignoreUpdates: Bool = false
     
     // 
     // View lifecycle
@@ -43,6 +51,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         modeControl.enabled = !editing
         modeControl.userInteractionEnabled = !editing // Needs to set because of bug in iOS 8 beta 4 rdar://17881987
     }
+    
     
     //
     // User interaction
@@ -71,6 +80,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         }
     }
     
+    
     //
     // Table view data source
     //
@@ -91,39 +101,17 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }
     
     override func tableView(tableView: UITableView!, moveRowAtIndexPath sourceIndexPath: NSIndexPath!, toIndexPath destinationIndexPath: NSIndexPath!) {
-        
         if sourceIndexPath == destinationIndexPath {
             return
         }
         
-        ignoreUpdates = true
-        
-        // Get the moved toDo
+        fetchControllerDelegate.ignoreNextUpdates = true // Don't let fetched results controller affect table view
         let toDo = toDoListController.toDoAtIndexPath(sourceIndexPath)
         
-        // First check if it has moved section
         if sourceIndexPath.section != destinationIndexPath.section {
             
-            // Get the new section
             let sectionInfo = toDoListController.sections[destinationIndexPath.section]
-            
-            // Update state
-            switch sectionInfo.section {
-            case .ToDo:
-                toDo.done = false
-            case .Done:
-                toDo.done = true
-            case .HighPriority:
-                toDo.done = false
-                toDo.priority = ToDoPriority.High.toRaw()
-            case .MediumPriority:
-                toDo.done = false
-                toDo.priority = ToDoPriority.Medium.toRaw()
-            case .LowPriority:
-                toDo.done = false
-                toDo.priority = ToDoPriority.Low.toRaw()
-            }
-            toDo.metaData.updateSectionIdentifier()
+            updateToDoForSection(toDo, section: sectionInfo.section)
             
             // Update cell
             NSOperationQueue.mainQueue().addOperationWithBlock { // Table view is in inconsistent state, gotta wait
@@ -131,30 +119,12 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
             }
         }
         
-        // Now update internal order to reflect new position
-        
-        // First get all toDos, in sorted order
-        var sortedToDos = toDoListController.fetchedToDos()
-        sortedToDos = sortedToDos.filter() {$0 != toDo} // Remove current toDo
-        
-        // Insert toDo at new place in array
-        var sortedIndex = destinationIndexPath.row
-        for sectionIndex in 0..<destinationIndexPath.section {
-            sortedIndex += toDoListController.sections[sectionIndex].numberOfObjects
-            if sectionIndex == sourceIndexPath.section {
-                sortedIndex -= 1 // Remember, controller still thinks this toDo is in the old section
-            }
-        }
-        sortedToDos.insert(toDo, atIndex: sortedIndex)
-        
-        // Regenerate internal order for all toDos
-        for (index, toDo) in enumerate(sortedToDos) {
-            toDo.metaData.internalOrder = sortedToDos.count-index
-        }
+        updateInternalOrderForToDo(toDo, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
         
         // Save
         toDo.managedObjectContext.save(nil)
     }
+    
     
     //
     // Table view delegate
@@ -184,83 +154,60 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }
     
     //
-    // Fetched results controller delegate
-    //
-    
-    var sectionsBeingAdded: [Int] = []
-    var sectionsBeingRemoved: [Int] = []
-    
-    func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
-        if ignoreUpdates {
-            return
-        }
-        
-        sectionsBeingAdded = []
-        sectionsBeingRemoved = []
-        tableView.beginUpdates()
-    }
-    
-    func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
-        if ignoreUpdates {
-            return
-        }
-        
-        switch type {
-        case .Insert:
-            sectionsBeingAdded.append(sectionIndex)
-            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case .Delete:
-            sectionsBeingRemoved.append(sectionIndex)
-            self.tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        default:
-            return
-        }
-    }
-    
-    func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
-        if ignoreUpdates {
-            return
-        }
-        
-        switch type {
-        case .Insert:
-            tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Automatic)
-        case .Delete:
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-        case .Update:
-            configureCell(tableView.cellForRowAtIndexPath(indexPath), toDo: anObject as ToDo  )
-        case .Move:
-            if !contains(sectionsBeingAdded, newIndexPath.section) && !contains(sectionsBeingRemoved, indexPath.section) {
-                tableView.moveRowAtIndexPath(indexPath, toIndexPath: newIndexPath)
-                configureCell(tableView.cellForRowAtIndexPath(indexPath), toDo: anObject as ToDo)
-            } else { // Stupid and ugly, rdar://17684030
-                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-                tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
-            }
-        default:
-            return
-        }
-    }
-    
-    func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
-        if ignoreUpdates {
-            ignoreUpdates = false
-        } else {
-            tableView.endUpdates()
-        }
-    }
-    
-    //
     // Private methods
     //
     
-    func configureCell(cell: UITableViewCell, toDo: ToDo) {
+    private func configureCell(cell: UITableViewCell, toDo: ToDo) {
         cell.textLabel.text = toDo.title
         if toDo.done.boolValue {
             cell.textLabel.textColor = UIColor.lightGrayColor()
         } else {
             cell.textLabel.textColor = UIColor.blackColor()
         }
+    }
+    
+    private func updateToDoForSection(toDo: ToDo, section: ToDoSection) {
+        switch section {
+        case .ToDo:
+            toDo.done = false
+        case .Done:
+            toDo.done = true
+        case .HighPriority:
+            toDo.done = false
+            toDo.priority = ToDoPriority.High.toRaw()
+        case .MediumPriority:
+            toDo.done = false
+            toDo.priority = ToDoPriority.Medium.toRaw()
+        case .LowPriority:
+            toDo.done = false
+            toDo.priority = ToDoPriority.Low.toRaw()
+        }
+        toDo.metaData.updateSectionIdentifier()
+    }
+    
+    private func updateInternalOrderForToDo(toDo: ToDo, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
+        
+        // Now update internal order to reflect new position
+        
+        // First get all toDos, in sorted order
+        var sortedToDos = toDoListController.fetchedToDos()
+        sortedToDos = sortedToDos.filter() {$0 != toDo} // Remove current toDo
+        
+        // Insert toDo at new place in array
+        var sortedIndex = destinationIndexPath.row
+        for sectionIndex in 0..<destinationIndexPath.section {
+            sortedIndex += toDoListController.sections[sectionIndex].numberOfObjects
+            if sectionIndex == sourceIndexPath.section {
+                sortedIndex -= 1 // Remember, controller still thinks this toDo is in the old section
+            }
+        }
+        sortedToDos.insert(toDo, atIndex: sortedIndex)
+        
+        // Regenerate internal order for all toDos
+        for (index, toDo) in enumerate(sortedToDos) {
+            toDo.metaData.internalOrder = sortedToDos.count-index
+        }
+
     }
     
 }
