@@ -27,7 +27,7 @@ class NewToDoViewController: UIViewController {
     
     @IBAction func saveButtonPresse() {
         
-        let toDo = NSEntityDescription.insertNewObjectForEntityForName(ToDo.entityName(), inManagedObjectContext: managedObjectContext) as ToDo
+        let toDo = NSEntityDescription.insertNewObjectForEntityForName(ToDo.entityName, inManagedObjectContext: managedObjectContext) as ToDo
         toDo.title = self.textField.text
         toDo.priority = self.selectedPriority().toRaw()
         toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(managedObjectContext)+1

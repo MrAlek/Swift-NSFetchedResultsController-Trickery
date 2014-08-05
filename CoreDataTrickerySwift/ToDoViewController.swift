@@ -42,11 +42,7 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     override func setEditing(editing: Bool, animated: Bool)  {
         super.setEditing(editing, animated: animated)
         
-        if editing {
-            navigationItem.leftBarButtonItem = doneBarButtonItem
-        } else {
-            navigationItem.leftBarButtonItem = editBarButtonItem
-        }
+        navigationItem.leftBarButtonItem = editing ? doneBarButtonItem : editBarButtonItem
         
         modeControl.enabled = !editing
         modeControl.userInteractionEnabled = !editing // Needs to set because of bug in iOS 8 beta 4 rdar://17881987
@@ -72,12 +68,8 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     }
     
     @IBAction func viewModeControlChanged(sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {
-        case 0:
-            ToDoListConfiguration.defaultConfiguration(managedObjectContext).setListMode(.Simple)
-        default:
-            ToDoListConfiguration.defaultConfiguration(managedObjectContext).setListMode(.Prioritized)
-        }
+        let configuration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
+        configuration.listMode = sender.selectedSegmentIndex == 0 ? .Simple : .Prioritized
     }
     
     
@@ -159,11 +151,8 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
     
     private func configureCell(cell: UITableViewCell, toDo: ToDo) {
         cell.textLabel.text = toDo.title
-        if toDo.done.boolValue {
-            cell.textLabel.textColor = UIColor.lightGrayColor()
-        } else {
-            cell.textLabel.textColor = UIColor.blackColor()
-        }
+        let textColor = toDo.done.boolValue ? UIColor.lightGrayColor() : UIColor.blackColor()
+        cell.textLabel.textColor = textColor
     }
     
     private func updateInternalOrderForToDo(toDo: ToDo, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
@@ -188,7 +177,5 @@ class ToDoViewController: UITableViewController, NSFetchedResultsControllerDeleg
         for (index, toDo) in enumerate(sortedToDos) {
             toDo.metaData.internalOrder = sortedToDos.count-index
         }
-
     }
-    
 }

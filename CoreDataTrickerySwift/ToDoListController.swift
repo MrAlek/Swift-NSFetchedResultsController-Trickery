@@ -8,35 +8,31 @@
 
 import CoreData
 
-public class ToDoListController: NSFetchedResultsControllerDelegate {
+public class ToDoListController {
     
     var delegate: NSFetchedResultsControllerDelegate?
     
     var showsEmptySections: Bool = false {
-    didSet {
-        if showsEmptySections == oldValue { return }
+        didSet {
+            if showsEmptySections == oldValue { return }
         
-        // Notify delegate that sections will be changed
-        delegate?.controllerWillChangeContent?(toDosController)
+            delegate?.controllerWillChangeContent?(toDosController)
         
-        if showsEmptySections {
-            generateSectionInfoWithEmptySections(true)
-            notifyDelegateOfAddedEmptySections()
-        } else {
-            notifyDelegateOfRemovedEmptySections()
-            generateSectionInfoWithEmptySections(false)
+            let changedEmptySections = sectionInfoWithEmptySections(true)
+            notifyDelegateOfChangedEmptySections(changedEmptySections,
+                changeType: showsEmptySections ? .Insert : .Delete)
+            
+            sections = sectionInfoWithEmptySections(showsEmptySections)
+            delegate?.controllerDidChangeContent?(toDosController)
         }
-        
-        delegate?.controllerDidChangeContent?(toDosController)
-    }
     }
     
     public var sections: [ControllerSectionInfo] = []
-    private var oldSections: [ControllerSectionInfo] = []
-    
+    private var oldSectionsDuringFetchUpdate: [ControllerSectionInfo] = []
+
     private lazy var toDosController: NSFetchedResultsController = {
         
-        let fetchRequest = NSFetchRequest(entityName: ToDoMetaData.entityName())
+        let fetchRequest = NSFetchRequest(entityName: ToDoMetaData.entityName)
         fetchRequest.relationshipKeyPathsForPrefetching = ["toDo"]
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true),
             NSSortDescriptor(key: "internalOrder", ascending: false)]
@@ -47,7 +43,7 @@ public class ToDoListController: NSFetchedResultsControllerDelegate {
         controller.delegate = self
         
         return controller
-        }()
+    }()
     
     private var managedObjectContext: NSManagedObjectContext
     private var listConfiguration: ToDoListConfiguration
@@ -55,8 +51,12 @@ public class ToDoListController: NSFetchedResultsControllerDelegate {
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
         self.listConfiguration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
-        generateSectionInfoWithEmptySections(false)
+        sections = sectionInfoWithEmptySections(false)
     }
+
+    //
+    // Public methods
+    //
     
     func fetchedToDos() -> [ToDo] {
         let metaData = toDosController.fetchedObjects as [ToDoMetaData]
@@ -71,86 +71,46 @@ public class ToDoListController: NSFetchedResultsControllerDelegate {
     
     func reloadData() {
         toDosController.performFetch(nil)
-        generateSectionInfoWithEmptySections(showsEmptySections)
-    }
-    
-    //
-    // Fetched results controller delegate
-    //
-    
-    public func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
-        oldSections = sections
-        delegate?.controllerWillChangeContent?(controller)
-    }
-    
-    public func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
-        
-        // Regenerate all section info (I know this isn't Über-effective but it shouldn't take too much time)
-        generateSectionInfoWithEmptySections(showsEmptySections)
-        
-        // If we show empty sections, fetched changes don't affect us
-        if !showsEmptySections {
-            delegate?.controller?(controller, didChangeSection: sectionInfo, atIndex: sectionIndex, forChangeType: type)
-        }
-    }
-    
-    public func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
-        
-        var convertedOldIndexPath = realIndexPathForFetchedIndexPath(indexPath, sections: oldSections)
-        var convertedNewIndexPath = realIndexPathForFetchedIndexPath(newIndexPath, sections: sections)
-        
-        let metaData = anObject as ToDoMetaData
-        
-        delegate?.controller?(controller, didChangeObject: metaData.toDo, atIndexPath: convertedOldIndexPath, forChangeType: type, newIndexPath: convertedNewIndexPath)
-    }
-    
-    public func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
-        delegate?.controllerDidChangeContent?(controller)
+        sections = sectionInfoWithEmptySections(showsEmptySections)
     }
     
     //
     // Private methods
     //
     
-    private func generateSectionInfoWithEmptySections(emptySections: Bool) {
+    private func sectionInfoWithEmptySections(includeEmptySections: Bool) -> [ControllerSectionInfo] {
         
-        if emptySections {
-            // Get all fetched sections
+        if includeEmptySections {
             let fetchedSections = (toDosController.sections as [NSFetchedResultsSectionInfo]).map {$0.name!}
             
             let configuration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
-            // Map sections to sectionInfo structs with section and its fetched index
-            sections = configuration.sectionsForCurrentConfiguration().map {
-                ControllerSectionInfo(section: $0, fetchedIndex: find(fetchedSections, $0.toRaw()), fetchController: self.toDosController)
+            // Map sections to sectionInfo structs with each section and its fetched index
+            return configuration.sectionsForCurrentConfiguration().map {
+                let fetchedIndex = find(fetchedSections, $0.toRaw())
+                return ControllerSectionInfo(section: $0, fetchedIndex: fetchedIndex, fetchController: self.toDosController)
             }
             
         } else {
             // Just get all the sections from the fetched results controller
-            sections = []
+            var tempSections = [] as [ControllerSectionInfo]
             for (fetchedIndex, sectionInfo) in enumerate(toDosController.sections as [NSFetchedResultsSectionInfo]) {
                 let section = ToDoSection.fromRaw(sectionInfo.name!)!
-                sections.append(ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex, fetchController: self.toDosController))
+                tempSections.append(ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex, fetchController: self.toDosController))
             }
+            return tempSections;
         }
     }
-    
-    private func notifyDelegateOfAddedEmptySections() {
-        for (index, sectionInfo) in enumerate(sections) {
+
+    private func notifyDelegateOfChangedEmptySections(changedSections: [ControllerSectionInfo], changeType: NSFetchedResultsChangeType) {
+        for (index, sectionInfo) in enumerate(changedSections) {
             if !sectionInfo.fetchedIndex.hasValue {
-                delegate?.controller?(toDosController, didChangeSection: nil, atIndex: index, forChangeType: .Insert)
+                delegate?.controller?(toDosController, didChangeSection: sectionInfo, atIndex: index, forChangeType: changeType)
             }
         }
     }
     
-    private func notifyDelegateOfRemovedEmptySections() {
-        for (index, sectionInfo) in enumerate(sections) {
-            if !sectionInfo.fetchedIndex.hasValue {
-                delegate?.controller?(toDosController, didChangeSection: nil, atIndex: index, forChangeType: .Delete)
-            }
-        }
-    }
-    
-    private func realIndexPathForFetchedIndexPath(fetchedIndexPath: NSIndexPath?, sections: [ControllerSectionInfo]) -> NSIndexPath? {
+    private func displayedIndexPathForFetchedIndexPath(fetchedIndexPath: NSIndexPath?, sections: [ControllerSectionInfo]) -> NSIndexPath? {
+        // Ugh, I hate this implementation but as of beta 5, find() doesn't work on arrays with optionals
         if fetchedIndexPath.hasValue {
             for (sectionIndex, sectionInfo) in enumerate(sections) {
                 if sectionInfo.fetchedIndex == fetchedIndexPath!.section {
@@ -162,16 +122,43 @@ public class ToDoListController: NSFetchedResultsControllerDelegate {
     }
 }
 
+extension ToDoListController: NSFetchedResultsControllerDelegate {
+    
+    public func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
+        oldSectionsDuringFetchUpdate = sections // Backup
+        delegate?.controllerWillChangeContent?(controller)
+    }
+    
+    public func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
+        
+        // Regenerate section info
+        sections = sectionInfoWithEmptySections(showsEmptySections)
+        
+        // When we show empty sections, fetched changes don't affect our delegate
+        if !showsEmptySections {
+            delegate?.controller?(controller, didChangeSection: sectionInfo, atIndex: sectionIndex, forChangeType: type)
+        }
+    }
+    
+    public func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
+        
+        let displayedOldIndexPath = displayedIndexPathForFetchedIndexPath(indexPath, sections: oldSectionsDuringFetchUpdate)
+        let displayedNewIndexPath = displayedIndexPathForFetchedIndexPath(newIndexPath, sections: sections)
+        
+        let metaData = anObject as ToDoMetaData
+        
+        delegate?.controller?(controller, didChangeObject: metaData.toDo, atIndexPath: displayedOldIndexPath, forChangeType: type, newIndexPath: displayedNewIndexPath)
+    }
+    
+    public func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
+        delegate?.controllerDidChangeContent?(controller)
+    }
+}
+
 public class ControllerSectionInfo: NSFetchedResultsSectionInfo {
     let section: ToDoSection
-    let fetchedIndex: Int?
+    private let fetchedIndex: Int?
     private let fetchController: NSFetchedResultsController
-    
-    init(section: ToDoSection, fetchedIndex: Int?, fetchController: NSFetchedResultsController) {
-        self.section = section
-        self.fetchedIndex = fetchedIndex
-        self.fetchController = fetchController
-    }
     
     public var name: String! { return section.title() }
     public var indexTitle: String! { return nil }
@@ -180,10 +167,12 @@ public class ControllerSectionInfo: NSFetchedResultsSectionInfo {
     }
     public var objects: [AnyObject]! { return fetchedInfo?.objects }
     public var fetchedInfo: NSFetchedResultsSectionInfo? {
-        if fetchedIndex.hasValue {
-            return fetchController.sections[fetchedIndex!] as? NSFetchedResultsSectionInfo
-        } else {
-            return nil
-        }
+        return fetchedIndex.hasValue ? fetchController.sections[fetchedIndex!] as? NSFetchedResultsSectionInfo : nil
+    }
+    
+    init(section: ToDoSection, fetchedIndex: Int?, fetchController: NSFetchedResultsController) {
+        self.section = section
+        self.fetchedIndex = fetchedIndex
+        self.fetchController = fetchController
     }
 }

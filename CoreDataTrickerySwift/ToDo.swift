@@ -35,7 +35,7 @@ enum ToDoPriority: Int {
 
 @objc(ToDo)
 class ToDo: NSManagedObject {
-    class func entityName() -> NSString {return "ToDo"}
+    class var entityName: NSString {return "ToDo"}
 
     @NSManaged var title: String
     @NSManaged var done: NSNumber
@@ -44,13 +44,13 @@ class ToDo: NSManagedObject {
     
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName(), inManagedObjectContext: managedObjectContext) as ToDoMetaData
+        metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName, inManagedObjectContext: managedObjectContext) as ToDoMetaData
     }
 }
 
 @objc(ToDoMetaData)
 class ToDoMetaData: NSManagedObject {
-    class func entityName() -> NSString {return "ToDoMetaData"}
+    class var entityName: NSString {return "ToDoMetaData"}
 
     @NSManaged var internalOrder: NSNumber
     @NSManaged var sectionIdentifier: NSString
@@ -68,7 +68,7 @@ class ToDoMetaData: NSManagedObject {
         expressionDescription.expression = maxInternalOrderExpression
         expressionDescription.expressionResultType = .Integer32AttributeType
         
-        let fetchRequest = NSFetchRequest(entityName: entityName())
+        let fetchRequest = NSFetchRequest(entityName: entityName)
         fetchRequest.propertiesToFetch = [expressionDescription]
         fetchRequest.resultType = .DictionaryResultType
         
@@ -111,7 +111,7 @@ class ToDoMetaData: NSManagedObject {
     private func sectionForCurrentState() -> ToDoSection {
         if toDo.done.boolValue {
             return .Done
-        } else if ToDoListMode.fromRaw(listConfiguration.listMode) == ToDoListMode.Simple {
+        } else if listConfiguration.listMode == ToDoListMode.Simple {
             return .ToDo
         } else {
             switch ToDoPriority.fromRaw(toDo.priority)! {
@@ -130,32 +130,37 @@ enum ToDoListMode: Int {
 
 @objc(ToDoListConfiguration)
 class ToDoListConfiguration: NSManagedObject {
-    class func entityName() -> NSString {return "ToDoListConfiguration"}
+    class var entityName: NSString {return "ToDoListConfiguration"}
     
-    @NSManaged var listMode: NSNumber // Should be private, rdar://17906600
+    @NSManaged var listModeValue: NSNumber // Should be private, rdar://17906600
     @NSManaged var toDoMetaData: NSSet
+    
+    var listMode: ToDoListMode {
+        get {
+            return ToDoListMode.fromRaw(listModeValue)!
+        }
+        set {
+            listModeValue = newValue.toRaw()
+            for metaData in toDoMetaData.allObjects as [ToDoMetaData] {
+                metaData.updateSectionIdentifier()
+            }
+        }
+    }
     
     class func defaultConfiguration(context: NSManagedObjectContext) -> ToDoListConfiguration {
         
-        let fetchRequest = NSFetchRequest(entityName: entityName())
+        let fetchRequest = NSFetchRequest(entityName: entityName)
         let results = context.executeFetchRequest(fetchRequest, error: nil) as [ToDoListConfiguration]
         
         if results.count > 0 {
             return results[0]
         } else {
-            return NSEntityDescription.insertNewObjectForEntityForName(entityName(), inManagedObjectContext: context) as ToDoListConfiguration
-        }
-    }
-    
-    func setListMode(mode: ToDoListMode) {
-        listMode = mode.toRaw()
-        for metaData in toDoMetaData.allObjects as [ToDoMetaData] {
-            metaData.updateSectionIdentifier()
+            return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: context) as ToDoListConfiguration
         }
     }
 
     func sectionsForCurrentConfiguration() -> [ToDoSection] {
-        switch ToDoListMode.fromRaw(listMode)! {
+        switch listMode {
         case .Simple:
             return [.ToDo, .Done]
         case .Prioritized:
