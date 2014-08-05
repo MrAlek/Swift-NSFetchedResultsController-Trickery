@@ -114,7 +114,7 @@ class ToDoMetaData: NSManagedObject {
         } else if ToDoListMode.fromRaw(listConfiguration.listMode) == ToDoListMode.Simple {
             return .ToDo
         } else {
-            switch ToDoPriority.fromRaw(toDo.priority) as ToDoPriority {
+            switch ToDoPriority.fromRaw(toDo.priority)! {
             case .Low:      return .LowPriority
             case .Medium:   return .MediumPriority
             case .High:     return .HighPriority
@@ -132,7 +132,7 @@ enum ToDoListMode: Int {
 class ToDoListConfiguration: NSManagedObject {
     class func entityName() -> NSString {return "ToDoListConfiguration"}
     
-    @NSManaged private var listMode: NSNumber
+    @NSManaged var listMode: NSNumber // Should be private, rdar://17906600
     @NSManaged var toDoMetaData: NSSet
     
     class func defaultConfiguration(context: NSManagedObjectContext) -> ToDoListConfiguration {

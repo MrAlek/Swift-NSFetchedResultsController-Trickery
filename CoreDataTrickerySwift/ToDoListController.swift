@@ -8,7 +8,7 @@
 
 import CoreData
 
-class ToDoListController: NSFetchedResultsControllerDelegate {
+public class ToDoListController: NSFetchedResultsControllerDelegate {
     
     var delegate: NSFetchedResultsControllerDelegate?
     
@@ -31,7 +31,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     }
     }
     
-    private var sections: [ControllerSectionInfo] = []
+    public var sections: [ControllerSectionInfo] = []
     private var oldSections: [ControllerSectionInfo] = []
     
     private lazy var toDosController: NSFetchedResultsController = {
@@ -78,12 +78,12 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     // Fetched results controller delegate
     //
     
-    func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
+    public func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
         oldSections = sections
         delegate?.controllerWillChangeContent?(controller)
     }
     
-    func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
+    public func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
         
         // Regenerate all section info (I know this isn't Über-effective but it shouldn't take too much time)
         generateSectionInfoWithEmptySections(showsEmptySections)
@@ -94,7 +94,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
         }
     }
     
-    func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
+    public func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
         
         var convertedOldIndexPath = realIndexPathForFetchedIndexPath(indexPath, sections: oldSections)
         var convertedNewIndexPath = realIndexPathForFetchedIndexPath(newIndexPath, sections: sections)
@@ -104,7 +104,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
         delegate?.controller?(controller, didChangeObject: metaData.toDo, atIndexPath: convertedOldIndexPath, forChangeType: type, newIndexPath: convertedNewIndexPath)
     }
     
-    func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
+    public func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
         delegate?.controllerDidChangeContent?(controller)
     }
     
@@ -136,7 +136,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     
     private func notifyDelegateOfAddedEmptySections() {
         for (index, sectionInfo) in enumerate(sections) {
-            if !sectionInfo.fetchedIndex {
+            if !sectionInfo.fetchedIndex.hasValue {
                 delegate?.controller?(toDosController, didChangeSection: nil, atIndex: index, forChangeType: .Insert)
             }
         }
@@ -144,14 +144,14 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     
     private func notifyDelegateOfRemovedEmptySections() {
         for (index, sectionInfo) in enumerate(sections) {
-            if !sectionInfo.fetchedIndex {
+            if !sectionInfo.fetchedIndex.hasValue {
                 delegate?.controller?(toDosController, didChangeSection: nil, atIndex: index, forChangeType: .Delete)
             }
         }
     }
     
     private func realIndexPathForFetchedIndexPath(fetchedIndexPath: NSIndexPath?, sections: [ControllerSectionInfo]) -> NSIndexPath? {
-        if fetchedIndexPath {
+        if fetchedIndexPath.hasValue {
             for (sectionIndex, sectionInfo) in enumerate(sections) {
                 if sectionInfo.fetchedIndex == fetchedIndexPath!.section {
                     return NSIndexPath(forRow: fetchedIndexPath!.row, inSection: sectionIndex)
@@ -162,7 +162,7 @@ class ToDoListController: NSFetchedResultsControllerDelegate {
     }
 }
 
-class ControllerSectionInfo: NSFetchedResultsSectionInfo {
+public class ControllerSectionInfo: NSFetchedResultsSectionInfo {
     let section: ToDoSection
     let fetchedIndex: Int?
     private let fetchController: NSFetchedResultsController
@@ -173,18 +173,17 @@ class ControllerSectionInfo: NSFetchedResultsSectionInfo {
         self.fetchController = fetchController
     }
     
-    var name: String! { return section.title() }
-    var indexTitle: String! { return nil }
-    var numberOfObjects: Int {
-    if fetchedInfo { return fetchedInfo!.numberOfObjects }
-    else { return 0 }
+    public var name: String! { return section.title() }
+    public var indexTitle: String! { return nil }
+    public var numberOfObjects: Int {
+        return fetchedInfo?.numberOfObjects ?? 0
     }
-    var objects: [AnyObject]! { return fetchedInfo?.objects }
-    var fetchedInfo: NSFetchedResultsSectionInfo? {
-    if fetchedIndex {
-        return fetchController.sections[fetchedIndex!] as? NSFetchedResultsSectionInfo
-    } else {
-        return nil
+    public var objects: [AnyObject]! { return fetchedInfo?.objects }
+    public var fetchedInfo: NSFetchedResultsSectionInfo? {
+        if fetchedIndex.hasValue {
+            return fetchController.sections[fetchedIndex!] as? NSFetchedResultsSectionInfo
+        } else {
+            return nil
         }
     }
 }

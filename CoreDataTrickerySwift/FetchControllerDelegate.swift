@@ -9,7 +9,7 @@
 import CoreData
 import UIKit
 
-class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
+public class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
     
     private var sectionsBeingAdded: [Int] = []
     private var sectionsBeingRemoved: [Int] = []
@@ -22,7 +22,7 @@ class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
         self.tableView = tableView
     }
     
-    func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
+    public func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
         if ignoreNextUpdates {
             return
         }
@@ -32,7 +32,7 @@ class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
         tableView.beginUpdates()
     }
     
-    func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
+    public func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
         if ignoreNextUpdates {
             return
         }
@@ -49,7 +49,7 @@ class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
         }
     }
     
-    func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
+    public func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
         if ignoreNextUpdates {
             return
         }
@@ -75,7 +75,7 @@ class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
         }
     }
     
-    func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
+    public func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
         if ignoreNextUpdates {
             ignoreNextUpdates = false
         } else {
