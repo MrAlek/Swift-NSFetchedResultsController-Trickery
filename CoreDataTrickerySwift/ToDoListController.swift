@@ -8,7 +8,7 @@
 
 import CoreData
 
-public class ToDoListController {
+class ToDoListController {
     
     var delegate: NSFetchedResultsControllerDelegate?
     
@@ -124,12 +124,12 @@ public class ToDoListController {
 
 extension ToDoListController: NSFetchedResultsControllerDelegate {
     
-    public func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
+    func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
         oldSectionsDuringFetchUpdate = sections // Backup
         delegate?.controllerWillChangeContent?(controller)
     }
     
-    public func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
+    func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
         
         // Regenerate section info
         sections = sectionInfoWithEmptySections(showsEmptySections)
@@ -140,7 +140,7 @@ extension ToDoListController: NSFetchedResultsControllerDelegate {
         }
     }
     
-    public func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
+    func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
         
         let displayedOldIndexPath = displayedIndexPathForFetchedIndexPath(indexPath, sections: oldSectionsDuringFetchUpdate)
         let displayedNewIndexPath = displayedIndexPathForFetchedIndexPath(newIndexPath, sections: sections)
@@ -150,23 +150,23 @@ extension ToDoListController: NSFetchedResultsControllerDelegate {
         delegate?.controller?(controller, didChangeObject: metaData.toDo, atIndexPath: displayedOldIndexPath, forChangeType: type, newIndexPath: displayedNewIndexPath)
     }
     
-    public func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
+    func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
         delegate?.controllerDidChangeContent?(controller)
     }
 }
 
-public class ControllerSectionInfo: NSFetchedResultsSectionInfo {
+class ControllerSectionInfo: NSFetchedResultsSectionInfo {
     let section: ToDoSection
     private let fetchedIndex: Int?
     private let fetchController: NSFetchedResultsController
     
-    public var name: String! { return section.title() }
-    public var indexTitle: String! { return nil }
-    public var numberOfObjects: Int {
+    var name: String! { return section.title() }
+    var indexTitle: String! { return nil }
+    var numberOfObjects: Int {
         return fetchedInfo?.numberOfObjects ?? 0
     }
-    public var objects: [AnyObject]! { return fetchedInfo?.objects }
-    public var fetchedInfo: NSFetchedResultsSectionInfo? {
+    var objects: [AnyObject]! { return fetchedInfo?.objects }
+    var fetchedInfo: NSFetchedResultsSectionInfo? {
         return fetchedIndex.hasValue ? fetchController.sections[fetchedIndex!] as? NSFetchedResultsSectionInfo : nil
     }
     
