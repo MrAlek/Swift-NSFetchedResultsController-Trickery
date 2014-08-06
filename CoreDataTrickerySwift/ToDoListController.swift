@@ -27,7 +27,7 @@ public class ToDoListController {
         }
     }
     
-    public var sections: [ControllerSectionInfo] = []
+    private(set) var sections: [ControllerSectionInfo] = []
     private var oldSectionsDuringFetchUpdate: [ControllerSectionInfo] = []
 
     private lazy var toDosController: NSFetchedResultsController = {
