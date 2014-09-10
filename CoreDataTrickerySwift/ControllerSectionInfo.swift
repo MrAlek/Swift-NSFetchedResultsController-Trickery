@@ -1,0 +1,43 @@
+//
+//  ControllerSectionInfo.swift
+//  CoreDataTrickerySwift
+//
+//  Created by Alek Åström on 2014-08-20.
+//  Copyright (c) 2014 Apps and Wonders. All rights reserved.
+//
+
+import CoreData
+
+class ControllerSectionInfo: NSFetchedResultsSectionInfo {
+    
+    // ========================================
+    // MARK: - Internal properties
+    // ========================================
+    
+    let section: ToDoSection
+    let fetchedIndex: Int?
+    let fetchController: NSFetchedResultsController
+    var fetchedInfo: NSFetchedResultsSectionInfo? {
+        return fetchedIndex.hasValue ? fetchController.sections![0] as? NSFetchedResultsSectionInfo : nil
+    }
+    
+    // ========================================
+    // MARK: - NSFetchedResultsSectionInfo
+    // ========================================
+    
+    var name: String { return section.title() }
+    var indexTitle: String { return "" }
+    var numberOfObjects: Int { return fetchedInfo?.numberOfObjects ?? 0 }
+    var objects: [AnyObject] { return fetchedInfo?.objects ?? [] }
+    
+    // ========================================
+    // MARK: - Internal methods
+    // ========================================
+    
+    init(section: ToDoSection, fetchedIndex: Int?, fetchController: NSFetchedResultsController) {
+        self.section = section
+        self.fetchedIndex = fetchedIndex
+        self.fetchController = fetchController
+    }
+    
+}

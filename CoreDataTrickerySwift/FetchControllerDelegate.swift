@@ -22,7 +22,7 @@ public class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
         self.tableView = tableView
     }
     
-    public func controllerWillChangeContent(controller: NSFetchedResultsController!)  {
+    public func controllerWillChangeContent(controller: NSFetchedResultsController)  {
         if ignoreNextUpdates {
             return
         }
@@ -32,7 +32,7 @@ public class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
         tableView.beginUpdates()
     }
     
-    public func controller(controller: NSFetchedResultsController!, didChangeSection sectionInfo: NSFetchedResultsSectionInfo!, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
+    public func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
         if ignoreNextUpdates {
             return
         }
@@ -49,33 +49,33 @@ public class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
         }
     }
     
-    public func controller(controller: NSFetchedResultsController!, didChangeObject anObject: AnyObject!, atIndexPath indexPath: NSIndexPath!, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath!)  {
+    public func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         if ignoreNextUpdates {
             return
         }
         
         switch type {
         case .Insert:
-            tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Automatic)
+            tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Automatic)
         case .Delete:
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+            tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Automatic)
         case .Update:
-            onUpdate?(cell: tableView.cellForRowAtIndexPath(indexPath), object: anObject)
+            onUpdate?(cell: tableView.cellForRowAtIndexPath(indexPath!)!, object: anObject)
         case .Move:
             // Stupid and ugly, rdar://17684030
-            if !contains(sectionsBeingAdded, newIndexPath.section) && !contains(sectionsBeingRemoved, indexPath.section) {
-                tableView.moveRowAtIndexPath(indexPath, toIndexPath: newIndexPath)
-                onUpdate?(cell: tableView.cellForRowAtIndexPath(indexPath), object: anObject)
+            if !contains(sectionsBeingAdded, newIndexPath!.section) && !contains(sectionsBeingRemoved, indexPath!.section) {
+                tableView.moveRowAtIndexPath(indexPath!, toIndexPath: newIndexPath!)
+                onUpdate?(cell: tableView.cellForRowAtIndexPath(indexPath!)!, object: anObject)
             } else {
-                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-                tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: .Fade)
+                tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
+                tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
             }
         default:
             return
         }
     }
     
-    public func controllerDidChangeContent(controller: NSFetchedResultsController!)  {
+    public func controllerDidChangeContent(controller: NSFetchedResultsController)  {
         if ignoreNextUpdates {
             ignoreNextUpdates = false
         } else {

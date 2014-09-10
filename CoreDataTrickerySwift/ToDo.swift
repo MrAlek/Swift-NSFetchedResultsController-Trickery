@@ -72,9 +72,10 @@ class ToDoMetaData: NSManagedObject {
         fetchRequest.propertiesToFetch = [expressionDescription]
         fetchRequest.resultType = .DictionaryResultType
         
-        let results = context.executeFetchRequest(fetchRequest, error: nil)
-        if results.count > 0 {
-            maxInternalOrder = results[0].valueForKey("maxInternalOrder").integerValue
+        if let results = context.executeFetchRequest(fetchRequest, error: nil){
+            if results.count > 0 {
+                maxInternalOrder = results[0].valueForKey("maxInternalOrder").integerValue
+            }
         }
         
         return maxInternalOrder

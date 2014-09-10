@@ -28,18 +28,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(application: UIApplication!) {
         self.saveContext()
     }
-
+    
     func applicationWillTerminate(application: UIApplication!) {
         self.saveContext()
     }
-
+    
     func saveContext () {
         var error: NSError? = nil
-        let managedObjectContext = self.managedObjectContext
-        if managedObjectContext != nil {
-            if managedObjectContext.hasChanges && !managedObjectContext.save(&error) {
-                abort()
-            }
+        if self.managedObjectContext.hasChanges && !self.managedObjectContext.save(&error) {
+            abort()
         }
     }
 
@@ -49,11 +46,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // If the context doesn't already exist, it is created and bound to the persistent store coordinator for the application.
     var managedObjectContext: NSManagedObjectContext {
         if _managedObjectContext == nil {
-            let coordinator = self.persistentStoreCoordinator
-            if coordinator != nil {
-                _managedObjectContext = NSManagedObjectContext()
-                _managedObjectContext!.persistentStoreCoordinator = coordinator
-            }
+            _managedObjectContext = NSManagedObjectContext()
+            _managedObjectContext!.persistentStoreCoordinator = self.persistentStoreCoordinator
         }
         return _managedObjectContext!
     }
@@ -64,7 +58,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var managedObjectModel: NSManagedObjectModel {
         if _managedObjectModel == nil {
             let modelURL = NSBundle.mainBundle().URLForResource("CoreDataTrickerySwift", withExtension: "momd")
-            _managedObjectModel = NSManagedObjectModel(contentsOfURL: modelURL)
+            _managedObjectModel = NSManagedObjectModel(contentsOfURL: modelURL!)
         }
         return _managedObjectModel!
     }
