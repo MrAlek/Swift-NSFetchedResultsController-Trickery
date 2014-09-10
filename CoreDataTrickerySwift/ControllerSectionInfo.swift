@@ -8,7 +8,7 @@
 
 import CoreData
 
-class ControllerSectionInfo: NSFetchedResultsSectionInfo {
+class ControllerSectionInfo {
     
     // ========================================
     // MARK: - Internal properties
@@ -22,15 +22,6 @@ class ControllerSectionInfo: NSFetchedResultsSectionInfo {
     }
     
     // ========================================
-    // MARK: - NSFetchedResultsSectionInfo
-    // ========================================
-    
-    var name: String { return section.title() }
-    var indexTitle: String { return "" }
-    var numberOfObjects: Int { return fetchedInfo?.numberOfObjects ?? 0 }
-    var objects: [AnyObject] { return fetchedInfo?.objects ?? [] }
-    
-    // ========================================
     // MARK: - Internal methods
     // ========================================
     
@@ -40,4 +31,11 @@ class ControllerSectionInfo: NSFetchedResultsSectionInfo {
         self.fetchController = fetchController
     }
     
+}
+
+extension ControllerSectionInfo: NSFetchedResultsSectionInfo {
+    var name: String { return section.title() }
+    var indexTitle: String { return "" }
+    var numberOfObjects: Int { return fetchedInfo?.numberOfObjects ?? 0 }
+    var objects: [AnyObject] { return fetchedInfo?.objects ?? [] }
 }
