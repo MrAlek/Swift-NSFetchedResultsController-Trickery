@@ -29,7 +29,7 @@ class NewToDoViewController: UIViewController {
         
         let toDo = NSEntityDescription.insertNewObjectForEntityForName(ToDo.entityName, inManagedObjectContext: managedObjectContext) as ToDo
         toDo.title = self.textField.text
-        toDo.priority = self.selectedPriority().toRaw()
+        toDo.priority = self.selectedPriority().rawValue
         toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(managedObjectContext)+1
         toDo.metaData.updateSectionIdentifier()
         managedObjectContext.save(nil)

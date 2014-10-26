@@ -18,7 +18,7 @@ class ControllerSectionInfo {
     let fetchedIndex: Int?
     let fetchController: NSFetchedResultsController
     var fetchedInfo: NSFetchedResultsSectionInfo? {
-        return fetchedIndex.hasValue ? fetchController.sections![0] as? NSFetchedResultsSectionInfo : nil
+        return (fetchedIndex != nil) ? fetchController.sections![0] as? NSFetchedResultsSectionInfo : nil
     }
     
     // ========================================
@@ -34,7 +34,7 @@ class ControllerSectionInfo {
 }
 
 extension ControllerSectionInfo: NSFetchedResultsSectionInfo {
-    var name: String { return section.title() }
+    var name: String? { return section.title() }
     var indexTitle: String { return "" }
     var numberOfObjects: Int { return fetchedInfo?.numberOfObjects ?? 0 }
     var objects: [AnyObject] { return fetchedInfo?.objects ?? [] }

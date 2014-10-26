@@ -92,8 +92,14 @@ class ToDoListController {
     */
     func toDoAtIndexPath(indexPath: NSIndexPath) -> ToDo? {
         let sectionInfo = sections[indexPath.section]
-        let metaData = toDosController.objectAtIndexPath(NSIndexPath(forRow: indexPath.row, inSection: sectionInfo.fetchedIndex!))as ToDoMetaData!
-        return metaData?.toDo ?? nil
+        
+        if let section = sectionInfo.fetchedIndex {
+            let indexPath = NSIndexPath(forRow: indexPath.row, inSection: section)
+            let metaData = toDosController.objectAtIndexPath(indexPath) as ToDoMetaData
+            return metaData.toDo
+        } else {
+            return nil
+        }
     }
     
     /// Reloads all data internally, does not notify delegate of eventual changes in sections or rows
@@ -109,20 +115,21 @@ class ToDoListController {
     private func sectionInfoWithEmptySections(includeEmptySections: Bool) -> [ControllerSectionInfo] {
         
         if includeEmptySections {
-            let fetchedSections = (toDosController.sections as [NSFetchedResultsSectionInfo]).map {$0.name}
+            let fetchedSections = (toDosController.sections as [NSFetchedResultsSectionInfo]).map {$0.name!}
             
             let configuration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
             // Map sections to sectionInfo structs with each section and its fetched index
             return configuration.sectionsForCurrentConfiguration().map {
-                let fetchedIndex = find(fetchedSections, $0.toRaw())
-                return ControllerSectionInfo(section: $0, fetchedIndex: fetchedIndex, fetchController: self.toDosController)
+                section in
+                let fetchedIndex = find(fetchedSections, section.rawValue)
+                return ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex, fetchController: self.toDosController)
             }
             
         } else {
             // Just get all the sections from the fetched results controller
             var tempSections = [] as [ControllerSectionInfo]
             for (fetchedIndex, sectionInfo) in enumerate(toDosController.sections as [NSFetchedResultsSectionInfo]) {
-                let section = ToDoSection.fromRaw(sectionInfo.name)!
+                let section = ToDoSection(rawValue: sectionInfo.name!)!
                 tempSections.append(ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex, fetchController: self.toDosController))
             }
             return tempSections;
@@ -131,7 +138,7 @@ class ToDoListController {
 
     private func notifyDelegateOfChangedEmptySections(changedSections: [ControllerSectionInfo], changeType: NSFetchedResultsChangeType) {
         for (index, sectionInfo) in enumerate(changedSections) {
-            if !sectionInfo.fetchedIndex.hasValue {
+            if sectionInfo.fetchedIndex == nil {
                 delegate?.controller?(toDosController, didChangeSection: sectionInfo, atIndex: index, forChangeType: changeType)
             }
         }
@@ -172,8 +179,8 @@ extension ToDoListController: NSFetchedResultsControllerDelegate {
     
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?)  {
         
-        let displayedOldIndexPath = indexPath.hasValue ? displayedIndexPathForFetchedIndexPath(indexPath!, sections: oldSectionsDuringFetchUpdate) : nil
-        let displayedNewIndexPath = newIndexPath.hasValue ? displayedIndexPathForFetchedIndexPath(newIndexPath!, sections: sections) : nil
+        let displayedOldIndexPath = (indexPath != nil) ? displayedIndexPathForFetchedIndexPath(indexPath!, sections: oldSectionsDuringFetchUpdate) : nil
+        let displayedNewIndexPath = (newIndexPath != nil) ? displayedIndexPathForFetchedIndexPath(newIndexPath!, sections: sections) : nil
         
         let metaData = anObject as ToDoMetaData
         

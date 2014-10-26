@@ -44,7 +44,7 @@ class ToDo: NSManagedObject {
     
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName, inManagedObjectContext: managedObjectContext) as ToDoMetaData
+        metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName, inManagedObjectContext: managedObjectContext!) as ToDoMetaData
     }
 }
 
@@ -59,8 +59,6 @@ class ToDoMetaData: NSManagedObject {
 
     class func maxInternalOrder(context: NSManagedObjectContext) -> Int {
         
-        var maxInternalOrder = 0
-        
         let maxInternalOrderExpression = NSExpression(forFunction: "max:", arguments: [NSExpression(forKeyPath: "internalOrder")])
         
         let expressionDescription = NSExpressionDescription()
@@ -74,16 +72,16 @@ class ToDoMetaData: NSManagedObject {
         
         if let results = context.executeFetchRequest(fetchRequest, error: nil){
             if results.count > 0 {
-                maxInternalOrder = results[0].valueForKey("maxInternalOrder").integerValue
+                return results[0].valueForKey("maxInternalOrder") as Int
             }
         }
         
-        return maxInternalOrder
+        return 0
     }
     
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        listConfiguration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
+        listConfiguration = ToDoListConfiguration.defaultConfiguration(managedObjectContext!)
     }
 
     func setSection(section: ToDoSection) {
@@ -94,19 +92,19 @@ class ToDoMetaData: NSManagedObject {
             toDo.done = true
         case .HighPriority:
             toDo.done = false
-            toDo.priority = ToDoPriority.High.toRaw()
+            toDo.priority = ToDoPriority.High.rawValue
         case .MediumPriority:
             toDo.done = false
-            toDo.priority = ToDoPriority.Medium.toRaw()
+            toDo.priority = ToDoPriority.Medium.rawValue
         case .LowPriority:
             toDo.done = false
-            toDo.priority = ToDoPriority.Low.toRaw()
+            toDo.priority = ToDoPriority.Low.rawValue
         }
-        sectionIdentifier = section.toRaw()
+        sectionIdentifier = section.rawValue
     }
     
     func updateSectionIdentifier() {
-        sectionIdentifier = sectionForCurrentState().toRaw()
+        sectionIdentifier = sectionForCurrentState().rawValue
     }
     
     private func sectionForCurrentState() -> ToDoSection {
@@ -115,7 +113,7 @@ class ToDoMetaData: NSManagedObject {
         } else if listConfiguration.listMode == ToDoListMode.Simple {
             return .ToDo
         } else {
-            switch ToDoPriority.fromRaw(toDo.priority)! {
+            switch ToDoPriority(rawValue: toDo.priority.integerValue)! {
             case .Low:      return .LowPriority
             case .Medium:   return .MediumPriority
             case .High:     return .HighPriority
@@ -133,15 +131,15 @@ enum ToDoListMode: Int {
 class ToDoListConfiguration: NSManagedObject {
     class var entityName: NSString {return "ToDoListConfiguration"}
     
-    @NSManaged var listModeValue: NSNumber // Should be private, rdar://17906600
+    @NSManaged private var listModeValue: NSNumber
     @NSManaged var toDoMetaData: NSSet
     
     var listMode: ToDoListMode {
         get {
-            return ToDoListMode.fromRaw(listModeValue)!
+            return ToDoListMode(rawValue: listModeValue.integerValue)!
         }
         set {
-            listModeValue = newValue.toRaw()
+            listModeValue = newValue.rawValue
             for metaData in toDoMetaData.allObjects as [ToDoMetaData] {
                 metaData.updateSectionIdentifier()
             }

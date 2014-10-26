@@ -121,7 +121,7 @@ class ToDoViewController: UITableViewController {
         updateInternalOrderForToDo(toDo, sourceIndexPath: sourceIndexPath, destinationIndexPath: destinationIndexPath)
         
         // Save
-        toDo.managedObjectContext.save(nil)
+        toDo.managedObjectContext!.save(nil)
     }
     
     // MARK: Table view delegate
@@ -130,14 +130,14 @@ class ToDoViewController: UITableViewController {
         if editingStyle == .Delete {
             
             let toDo = toDoListController.toDoAtIndexPath(indexPath)
-            toDo?.managedObjectContext.deleteObject(toDo!)
+            toDo?.managedObjectContext!.deleteObject(toDo!)
             
             managedObjectContext.save(nil)
         }
     }
     
     override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String {
-        return toDoListController.sections[section].name
+        return toDoListController.sections[section].name ?? ""
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -146,7 +146,7 @@ class ToDoViewController: UITableViewController {
         if let toDo = toDoListController.toDoAtIndexPath(indexPath) {
             toDo.done = !toDo.done.boolValue
             toDo.metaData.updateSectionIdentifier()
-            toDo.managedObjectContext.save(nil)
+            toDo.managedObjectContext!.save(nil)
         }
     }
     
@@ -155,9 +155,9 @@ class ToDoViewController: UITableViewController {
     // ========================================
     
     private func configureCell(cell: UITableViewCell, toDo: ToDo) {
-        cell.textLabel?.text = toDo.title
+        cell.textLabel.text = toDo.title
         let textColor = toDo.done.boolValue ? UIColor.lightGrayColor() : UIColor.blackColor()
-        cell.textLabel?.textColor = textColor
+        cell.textLabel.textColor = textColor
     }
     
     private func updateInternalOrderForToDo(toDo: ToDo, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
