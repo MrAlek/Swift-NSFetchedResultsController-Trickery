@@ -18,7 +18,7 @@ class ControllerSectionInfo {
     let fetchedIndex: Int?
     let fetchController: NSFetchedResultsController
     var fetchedInfo: NSFetchedResultsSectionInfo? {
-        return (fetchedIndex != nil) ? fetchController.sections![0] as? NSFetchedResultsSectionInfo : nil
+        return (fetchedIndex != nil) ? fetchController.sections![fetchedIndex!] as? NSFetchedResultsSectionInfo : nil
     }
     
     // ========================================
