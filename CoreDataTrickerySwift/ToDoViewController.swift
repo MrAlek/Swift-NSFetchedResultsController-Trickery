@@ -155,9 +155,9 @@ class ToDoViewController: UITableViewController {
     // ========================================
     
     private func configureCell(cell: UITableViewCell, toDo: ToDo) {
-        cell.textLabel.text = toDo.title
+        cell.textLabel?.text = toDo.title
         let textColor = toDo.done.boolValue ? UIColor.lightGrayColor() : UIColor.blackColor()
-        cell.textLabel.textColor = textColor
+        cell.textLabel?.textColor = textColor
     }
     
     private func updateInternalOrderForToDo(toDo: ToDo, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
