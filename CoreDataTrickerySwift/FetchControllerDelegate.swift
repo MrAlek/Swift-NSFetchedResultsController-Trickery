@@ -9,7 +9,7 @@
 import CoreData
 import UIKit
 
-public class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
+@objc public class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
     
     private var sectionsBeingAdded: [Int] = []
     private var sectionsBeingRemoved: [Int] = []

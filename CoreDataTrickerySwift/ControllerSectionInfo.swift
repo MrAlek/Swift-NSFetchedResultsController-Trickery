@@ -8,7 +8,7 @@
 
 import CoreData
 
-class ControllerSectionInfo {
+@objc class ControllerSectionInfo {
     
     // ========================================
     // MARK: - Internal properties

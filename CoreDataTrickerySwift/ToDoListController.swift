@@ -9,7 +9,7 @@
 import CoreData
 
 /// Class used to display ToDo's in a table view
-class ToDoListController {
+@objc class ToDoListController {
     
     //
     // MARK: - Internal properties
@@ -23,7 +23,7 @@ class ToDoListController {
         didSet {
             if showsEmptySections == oldValue { return }
         
-            delegate?.controllerWillChangeContent?(toDosController)
+            delegate!.controllerWillChangeContent!(toDosController)
         
             let changedEmptySections = sectionInfoWithEmptySections(true)
             notifyDelegateOfChangedEmptySections(changedEmptySections,
@@ -63,9 +63,7 @@ class ToDoListController {
     // MARK: - Internal methods
     //
 
-    /**
-        Initializes a ToDoListController with a given managed object context
-
+    /** Initializes a ToDoListController with a given managed object context
         :param: managedObjectContext The context to fetch ToDo's from
     */
     init(managedObjectContext: NSManagedObjectContext) {
@@ -74,19 +72,15 @@ class ToDoListController {
         sections = sectionInfoWithEmptySections(false)
     }
     
-    /**
-        Used to get all the fetched ToDo's
-
+    /** Used to get all the fetched ToDo's
         :returns: All fetched ToDo's in provided managed object context
     */
     func fetchedToDos() -> [ToDo] {
-        let metaData = toDosController.fetchedObjects as [ToDoMetaData]
+        let metaData = toDosController.fetchedObjects as! [ToDoMetaData]
         return metaData.map {$0.toDo}
     }
     
-    /**
-        Used to get a single ToDo for a given index path
-        
+    /** Used to get a single ToDo for a given index path
         :param: indexPath The index path for a ToDo in the table view
         :returns: An optional ToDo if a ToDo was found at the provided index path
     */
@@ -95,7 +89,7 @@ class ToDoListController {
         
         if let section = sectionInfo.fetchedIndex {
             let indexPath = NSIndexPath(forRow: indexPath.row, inSection: section)
-            let metaData = toDosController.objectAtIndexPath(indexPath) as ToDoMetaData
+            let metaData = toDosController.objectAtIndexPath(indexPath) as! ToDoMetaData
             return metaData.toDo
         } else {
             return nil
@@ -115,7 +109,7 @@ class ToDoListController {
     private func sectionInfoWithEmptySections(includeEmptySections: Bool) -> [ControllerSectionInfo] {
         
         if includeEmptySections {
-            let fetchedSections = (toDosController.sections as [NSFetchedResultsSectionInfo]).map {$0.name!}
+            let fetchedSections = (toDosController.sections as! [NSFetchedResultsSectionInfo]).map {$0.name!}
             
             let configuration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
             // Map sections to sectionInfo structs with each section and its fetched index
@@ -128,7 +122,7 @@ class ToDoListController {
         } else {
             // Just get all the sections from the fetched results controller
             var tempSections = [] as [ControllerSectionInfo]
-            for (fetchedIndex, sectionInfo) in enumerate(toDosController.sections as [NSFetchedResultsSectionInfo]) {
+            for (fetchedIndex, sectionInfo) in enumerate(toDosController.sections as! [NSFetchedResultsSectionInfo]) {
                 let section = ToDoSection(rawValue: sectionInfo.name!)!
                 tempSections.append(ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex, fetchController: self.toDosController))
             }
@@ -182,7 +176,7 @@ extension ToDoListController: NSFetchedResultsControllerDelegate {
         let displayedOldIndexPath = (indexPath != nil) ? displayedIndexPathForFetchedIndexPath(indexPath!, sections: oldSectionsDuringFetchUpdate) : nil
         let displayedNewIndexPath = (newIndexPath != nil) ? displayedIndexPathForFetchedIndexPath(newIndexPath!, sections: sections) : nil
         
-        let metaData = anObject as ToDoMetaData
+        let metaData = anObject as! ToDoMetaData
         
         delegate?.controller?(controller, didChangeObject: metaData.toDo, atIndexPath: displayedOldIndexPath, forChangeType: type, newIndexPath: displayedNewIndexPath)
     }

@@ -35,7 +35,7 @@ enum ToDoPriority: Int {
 
 @objc(ToDo)
 class ToDo: NSManagedObject {
-    class var entityName: NSString {return "ToDo"}
+    class var entityName: String {return "ToDo"}
 
     @NSManaged var title: String
     @NSManaged var done: NSNumber
@@ -44,13 +44,13 @@ class ToDo: NSManagedObject {
     
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName, inManagedObjectContext: managedObjectContext!) as ToDoMetaData
+        metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName, inManagedObjectContext: managedObjectContext!) as! ToDoMetaData
     }
 }
 
 @objc(ToDoMetaData)
 class ToDoMetaData: NSManagedObject {
-    class var entityName: NSString {return "ToDoMetaData"}
+    class var entityName: String {return "ToDoMetaData"}
 
     @NSManaged var internalOrder: NSNumber
     @NSManaged var sectionIdentifier: NSString
@@ -72,7 +72,7 @@ class ToDoMetaData: NSManagedObject {
         
         if let results = context.executeFetchRequest(fetchRequest, error: nil){
             if results.count > 0 {
-                return results[0].valueForKey("maxInternalOrder") as Int
+                return results[0].valueForKey("maxInternalOrder") as! Int
             }
         }
         
@@ -129,7 +129,7 @@ enum ToDoListMode: Int {
 
 @objc(ToDoListConfiguration)
 class ToDoListConfiguration: NSManagedObject {
-    class var entityName: NSString {return "ToDoListConfiguration"}
+    class var entityName: String {return "ToDoListConfiguration"}
     
     @NSManaged private var listModeValue: NSNumber
     @NSManaged var toDoMetaData: NSSet
@@ -140,7 +140,7 @@ class ToDoListConfiguration: NSManagedObject {
         }
         set {
             listModeValue = newValue.rawValue
-            for metaData in toDoMetaData.allObjects as [ToDoMetaData] {
+            for metaData in toDoMetaData.allObjects as! [ToDoMetaData] {
                 metaData.updateSectionIdentifier()
             }
         }
@@ -149,12 +149,12 @@ class ToDoListConfiguration: NSManagedObject {
     class func defaultConfiguration(context: NSManagedObjectContext) -> ToDoListConfiguration {
         
         let fetchRequest = NSFetchRequest(entityName: entityName)
-        let results = context.executeFetchRequest(fetchRequest, error: nil) as [ToDoListConfiguration]
+        let results = context.executeFetchRequest(fetchRequest, error: nil) as! [ToDoListConfiguration]
         
         if results.count > 0 {
             return results[0]
         } else {
-            return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: context) as ToDoListConfiguration
+            return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: context) as! ToDoListConfiguration
         }
     }
 

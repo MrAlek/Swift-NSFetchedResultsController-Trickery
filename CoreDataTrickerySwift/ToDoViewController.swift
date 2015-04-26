@@ -26,7 +26,7 @@ class ToDoViewController: UITableViewController {
         let delegate = FetchControllerDelegate(tableView: self.tableView)
         delegate.onUpdate = {
             (cell: UITableViewCell, object: AnyObject) in
-            self.configureCell(cell, toDo: object as ToDo)
+            self.configureCell(cell, toDo: object as! ToDo)
         }
         
         return delegate
@@ -68,8 +68,8 @@ class ToDoViewController: UITableViewController {
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         if segue.identifier == "present new to do" {
-            let navc = segue.destinationViewController as UINavigationController
-            let newVC = navc.topViewController as NewToDoViewController
+            let navc = segue.destinationViewController as! UINavigationController
+            let newVC = navc.topViewController as! NewToDoViewController
             
             newVC.managedObjectContext = self.managedObjectContext
         }
@@ -91,7 +91,7 @@ class ToDoViewController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell") as UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("cell") as! UITableViewCell
         let toDo = toDoListController.toDoAtIndexPath(indexPath)
         configureCell(cell, toDo:toDo!)
         return cell

@@ -11,25 +11,24 @@ import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-                            
-    var window: UIWindow!
-
-    func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {
+    
+    var window: UIWindow?
+    
+    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
+        ToDoListConfiguration.defaultConfiguration(managedObjectContext).listMode = .Simple
         
-            ToDoListConfiguration.defaultConfiguration(managedObjectContext).listMode = .Simple
-        
-        if let toDosController = (window.rootViewController as? UINavigationController)?.topViewController as? ToDoViewController {
+        if let toDosController = (window?.rootViewController as? UINavigationController)?.topViewController as? ToDoViewController {
             toDosController.managedObjectContext = managedObjectContext
         }
         
         return true
     }
     
-    func applicationDidEnterBackground(application: UIApplication!) {
+    func applicationDidEnterBackground(application: UIApplication) {
         self.saveContext()
     }
     
-    func applicationWillTerminate(application: UIApplication!) {
+    func applicationWillTerminate(application: UIApplication) {
         self.saveContext()
     }
     
@@ -39,9 +38,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             abort()
         }
     }
-
-    // #pragma mark - Core Data stack
-
+    
+    // MARK: Core Data stack
+    
     // Returns the managed object context for the application.
     // If the context doesn't already exist, it is created and bound to the persistent store coordinator for the application.
     var managedObjectContext: NSManagedObjectContext {
@@ -52,7 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return _managedObjectContext!
     }
     var _managedObjectContext: NSManagedObjectContext? = nil
-
+    
     // Returns the managed object model for the application.
     // If the model doesn't already exist, it is created from the application's model.
     var managedObjectModel: NSManagedObjectModel {
@@ -63,7 +62,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return _managedObjectModel!
     }
     var _managedObjectModel: NSManagedObjectModel? = nil
-
+    
     // Returns the persistent store coordinator for the application.
     // If the coordinator doesn't already exist, it is created and the application's store added to it.
     var persistentStoreCoordinator: NSPersistentStoreCoordinator {
@@ -79,14 +78,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return _persistentStoreCoordinator!
     }
     var _persistentStoreCoordinator: NSPersistentStoreCoordinator? = nil
-
-    // #pragma mark - Application's Documents directory
-                                    
+    
+    // MARK: Application's Documents directory
+    
     // Returns the URL to the application's Documents directory.
     var applicationDocumentsDirectory: NSURL {
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] as NSURL
+        return urls[urls.count-1] as! NSURL
     }
-
+    
 }
 
