@@ -25,14 +25,18 @@ class NewToDoViewController: UIViewController {
         dismissViewControllerAnimated(true, completion: nil)
     }
     
-    @IBAction func saveButtonPresse() {
+    @IBAction func saveButtonPressed() {
+        guard let title = textField.text else {
+            presentViewController(UIAlertController(title: "Can't create ToDo", message: "Title can't be blank", preferredStyle: .Alert), animated: true, completion: nil)
+            return
+        }
         
         let toDo = NSEntityDescription.insertNewObjectForEntityForName(ToDo.entityName, inManagedObjectContext: managedObjectContext) as! ToDo
-        toDo.title = self.textField.text
-        toDo.priority = self.selectedPriority().rawValue
+        toDo.title = title
+        toDo.priority = selectedPriority().rawValue
         toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(managedObjectContext)+1
         toDo.metaData.updateSectionIdentifier()
-        managedObjectContext.save(nil)
+        try! managedObjectContext.save()
         
         dismissViewControllerAnimated(true, completion: nil)
     }

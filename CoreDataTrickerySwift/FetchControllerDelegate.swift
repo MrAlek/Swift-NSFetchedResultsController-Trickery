@@ -9,11 +9,11 @@
 import CoreData
 import UIKit
 
-@objc public class FetchControllerDelegate: NSFetchedResultsControllerDelegate {
+public class FetchControllerDelegate: NSObject, NSFetchedResultsControllerDelegate {
     
     private var sectionsBeingAdded: [Int] = []
     private var sectionsBeingRemoved: [Int] = []
-    private let tableView: UITableView
+    private unowned let tableView: UITableView
     
     public var onUpdate: ((cell: UITableViewCell, object: AnyObject) -> Void)?
     public var ignoreNextUpdates: Bool = false
@@ -49,6 +49,7 @@ import UIKit
         }
     }
     
+    
     public func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         if ignoreNextUpdates {
             return
@@ -63,23 +64,21 @@ import UIKit
             onUpdate?(cell: tableView.cellForRowAtIndexPath(indexPath!)!, object: anObject)
         case .Move:
             // Stupid and ugly, rdar://17684030
-            if !contains(sectionsBeingAdded, newIndexPath!.section) && !contains(sectionsBeingRemoved, indexPath!.section) {
+            if !sectionsBeingAdded.contains(newIndexPath!.section) && !sectionsBeingRemoved.contains(indexPath!.section) {
                 tableView.moveRowAtIndexPath(indexPath!, toIndexPath: newIndexPath!)
                 onUpdate?(cell: tableView.cellForRowAtIndexPath(indexPath!)!, object: anObject)
             } else {
                 tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
                 tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
             }
-        default:
-            return
         }
     }
     
     public func controllerDidChangeContent(controller: NSFetchedResultsController)  {
-        if ignoreNextUpdates {
-            ignoreNextUpdates = false
-        } else {
+        if !ignoreNextUpdates {
             tableView.endUpdates()
         }
+        
+        ignoreNextUpdates = false
     }
 }

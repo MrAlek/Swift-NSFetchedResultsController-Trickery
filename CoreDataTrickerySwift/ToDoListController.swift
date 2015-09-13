@@ -9,7 +9,7 @@
 import CoreData
 
 /// Class used to display ToDo's in a table view
-@objc class ToDoListController {
+class ToDoListController: NSObject {
     
     //
     // MARK: - Internal properties
@@ -46,12 +46,13 @@ import CoreData
         
         let fetchRequest = NSFetchRequest(entityName: ToDoMetaData.entityName)
         fetchRequest.relationshipKeyPathsForPrefetching = ["toDo"]
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "sectionIdentifier", ascending: true),
+        fetchRequest.sortDescriptors = [
+            NSSortDescriptor(key: "sectionIdentifier", ascending: true),
             NSSortDescriptor(key: "internalOrder", ascending: false)]
         
         let controller = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.managedObjectContext, sectionNameKeyPath: "sectionIdentifier", cacheName: nil)
         
-        controller.performFetch(nil)
+        try! controller.performFetch()
         controller.delegate = self
         
         return controller
@@ -64,16 +65,18 @@ import CoreData
     //
 
     /** Initializes a ToDoListController with a given managed object context
-        :param: managedObjectContext The context to fetch ToDo's from
+        - parameter managedObjectContext: The context to fetch ToDo's from
     */
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
         self.listConfiguration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
+        
+        super.init()
         sections = sectionInfoWithEmptySections(false)
     }
     
     /** Used to get all the fetched ToDo's
-        :returns: All fetched ToDo's in provided managed object context
+        - returns: All fetched ToDo's in provided managed object context
     */
     func fetchedToDos() -> [ToDo] {
         let metaData = toDosController.fetchedObjects as! [ToDoMetaData]
@@ -81,24 +84,24 @@ import CoreData
     }
     
     /** Used to get a single ToDo for a given index path
-        :param: indexPath The index path for a ToDo in the table view
-        :returns: An optional ToDo if a ToDo was found at the provided index path
+        - parameter indexPath: The index path for a ToDo in the table view
+        - returns: An optional ToDo if a ToDo was found at the provided index path
     */
     func toDoAtIndexPath(indexPath: NSIndexPath) -> ToDo? {
         let sectionInfo = sections[indexPath.section]
         
-        if let section = sectionInfo.fetchedIndex {
-            let indexPath = NSIndexPath(forRow: indexPath.row, inSection: section)
-            let metaData = toDosController.objectAtIndexPath(indexPath) as! ToDoMetaData
-            return metaData.toDo
-        } else {
+        guard let section = sectionInfo.fetchedIndex else {
             return nil
         }
+        
+        let indexPath = NSIndexPath(forRow: indexPath.row, inSection: section)
+        let metaData = toDosController.objectAtIndexPath(indexPath) as! ToDoMetaData
+        return metaData.toDo
     }
     
     /// Reloads all data internally, does not notify delegate of eventual changes in sections or rows
     func reloadData() {
-        toDosController.performFetch(nil)
+        try! toDosController.performFetch()
         sections = sectionInfoWithEmptySections(showsEmptySections)
     }
     
@@ -107,31 +110,30 @@ import CoreData
     //
     
     private func sectionInfoWithEmptySections(includeEmptySections: Bool) -> [ControllerSectionInfo] {
+        guard let fetchedSectionNames = toDosController.sections?.map({$0.name}) else {
+            return []
+        }
         
         if includeEmptySections {
-            let fetchedSections = (toDosController.sections as! [NSFetchedResultsSectionInfo]).map {$0.name!}
-            
             let configuration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
+            
             // Map sections to sectionInfo structs with each section and its fetched index
-            return configuration.sectionsForCurrentConfiguration().map {
+            return configuration.sections.map {
                 section in
-                let fetchedIndex = find(fetchedSections, section.rawValue)
+                let fetchedIndex = fetchedSectionNames.indexOf(section.rawValue)
                 return ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex, fetchController: self.toDosController)
             }
-            
         } else {
             // Just get all the sections from the fetched results controller
-            var tempSections = [] as [ControllerSectionInfo]
-            for (fetchedIndex, sectionInfo) in enumerate(toDosController.sections as! [NSFetchedResultsSectionInfo]) {
-                let section = ToDoSection(rawValue: sectionInfo.name!)!
-                tempSections.append(ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex, fetchController: self.toDosController))
+            let rawSectionValuesIndexes = fetchedSectionNames.map { ($0, fetchedSectionNames.indexOf($0)) }
+            return rawSectionValuesIndexes.map {
+                ControllerSectionInfo(section: ToDoSection(rawValue: $0.0)!, fetchedIndex: $0.1, fetchController: toDosController)
             }
-            return tempSections;
         }
     }
 
     private func notifyDelegateOfChangedEmptySections(changedSections: [ControllerSectionInfo], changeType: NSFetchedResultsChangeType) {
-        for (index, sectionInfo) in enumerate(changedSections) {
+        for (index, sectionInfo) in changedSections.enumerate() {
             if sectionInfo.fetchedIndex == nil {
                 delegate?.controller?(toDosController, didChangeSection: sectionInfo, atIndex: index, forChangeType: changeType)
             }
@@ -139,8 +141,9 @@ import CoreData
     }
     
     private func displayedIndexPathForFetchedIndexPath(fetchedIndexPath: NSIndexPath, sections: [ControllerSectionInfo]) -> NSIndexPath? {
-        // Ugh, I hate this implementation but as of beta 5, find() doesn't work on arrays with optionals
-        for (sectionIndex, sectionInfo) in enumerate(sections) {
+        
+        // Ugh, I hate this implementation but as of Swift 2, other options are just less intuitive and needs more code
+        for (sectionIndex, sectionInfo) in sections.enumerate() {
             if sectionInfo.fetchedIndex == fetchedIndexPath.section {
                 return NSIndexPath(forRow: fetchedIndexPath.row, inSection: sectionIndex)
             }
@@ -165,18 +168,18 @@ extension ToDoListController: NSFetchedResultsControllerDelegate {
         // Regenerate section info
         sections = sectionInfoWithEmptySections(showsEmptySections)
         
-        // When we show empty sections, fetched changes don't affect our delegate
+        // When we show empty sections, fetched section changes don't affect our delegate
         if !showsEmptySections {
             delegate?.controller?(controller, didChangeSection: sectionInfo, atIndex: sectionIndex, forChangeType: type)
         }
     }
     
-    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?)  {
-        
-        let displayedOldIndexPath = (indexPath != nil) ? displayedIndexPathForFetchedIndexPath(indexPath!, sections: oldSectionsDuringFetchUpdate) : nil
-        let displayedNewIndexPath = (newIndexPath != nil) ? displayedIndexPathForFetchedIndexPath(newIndexPath!, sections: sections) : nil
-        
+    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         let metaData = anObject as! ToDoMetaData
+        
+        // Convert fetched indexpath to displayed index paths
+        let displayedOldIndexPath = indexPath.flatMap { displayedIndexPathForFetchedIndexPath($0, sections: oldSectionsDuringFetchUpdate) }
+        let displayedNewIndexPath = newIndexPath.flatMap { displayedIndexPathForFetchedIndexPath($0, sections: sections) }
         
         delegate?.controller?(controller, didChangeObject: metaData.toDo, atIndexPath: displayedOldIndexPath, forChangeType: type, newIndexPath: displayedNewIndexPath)
     }

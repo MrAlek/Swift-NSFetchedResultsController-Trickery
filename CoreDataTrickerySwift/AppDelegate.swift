@@ -25,67 +25,50 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationDidEnterBackground(application: UIApplication) {
-        self.saveContext()
+        saveContext()
     }
     
     func applicationWillTerminate(application: UIApplication) {
-        self.saveContext()
+        saveContext()
     }
     
     func saveContext () {
-        var error: NSError? = nil
-        if self.managedObjectContext.hasChanges && !self.managedObjectContext.save(&error) {
-            abort()
+        if !managedObjectContext.hasChanges {
+            return
         }
+        
+        try! managedObjectContext.save()
     }
     
     // MARK: Core Data stack
     
-    // Returns the managed object context for the application.
-    // If the context doesn't already exist, it is created and bound to the persistent store coordinator for the application.
-    var managedObjectContext: NSManagedObjectContext {
-        if _managedObjectContext == nil {
-            _managedObjectContext = NSManagedObjectContext()
-            _managedObjectContext!.persistentStoreCoordinator = self.persistentStoreCoordinator
-        }
-        return _managedObjectContext!
-    }
-    var _managedObjectContext: NSManagedObjectContext? = nil
+    lazy var managedObjectContext: NSManagedObjectContext = {
+        let context = NSManagedObjectContext()
+        context.persistentStoreCoordinator = self.persistentStoreCoordinator
+        return context
+    }()
     
-    // Returns the managed object model for the application.
-    // If the model doesn't already exist, it is created from the application's model.
-    var managedObjectModel: NSManagedObjectModel {
-        if _managedObjectModel == nil {
-            let modelURL = NSBundle.mainBundle().URLForResource("CoreDataTrickerySwift", withExtension: "momd")
-            _managedObjectModel = NSManagedObjectModel(contentsOfURL: modelURL!)
-        }
-        return _managedObjectModel!
-    }
-    var _managedObjectModel: NSManagedObjectModel? = nil
+    lazy var managedObjectModel: NSManagedObjectModel = {
+        let modelURL = NSBundle.mainBundle().URLForResource("CoreDataTrickerySwift", withExtension: "momd")
+        return NSManagedObjectModel(contentsOfURL: modelURL!)!
+    }()
     
-    // Returns the persistent store coordinator for the application.
-    // If the coordinator doesn't already exist, it is created and the application's store added to it.
-    var persistentStoreCoordinator: NSPersistentStoreCoordinator {
-        if _persistentStoreCoordinator == nil {
-            let storeURL = self.applicationDocumentsDirectory.URLByAppendingPathComponent("CoreDataTrickerySwift.sqlite")
-            var error: NSError? = nil
-            _persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-            let options = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
-            if _persistentStoreCoordinator!.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: options, error: &error) == nil {
-                abort()
-            }
-        }
-        return _persistentStoreCoordinator!
-    }
-    var _persistentStoreCoordinator: NSPersistentStoreCoordinator? = nil
+    lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
+        let storeURL = AppDelegate.applicationDocumentsDirectory.URLByAppendingPathComponent("CoreDataTrickerySwift.sqlite")
+        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
+        let options = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
+        try! coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: options)
+        return coordinator
+    }()
+}
+
+// MARK: Application's Documents directory
+
+extension AppDelegate {
     
-    // MARK: Application's Documents directory
-    
-    // Returns the URL to the application's Documents directory.
-    var applicationDocumentsDirectory: NSURL {
+    class var applicationDocumentsDirectory: NSURL {
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
-        return urls[urls.count-1] as! NSURL
+        return urls.last!
     }
-    
 }
 

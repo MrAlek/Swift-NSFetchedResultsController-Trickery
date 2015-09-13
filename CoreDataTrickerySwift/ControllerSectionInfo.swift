@@ -8,7 +8,7 @@
 
 import CoreData
 
-@objc class ControllerSectionInfo {
+class ControllerSectionInfo {
     
     // ========================================
     // MARK: - Internal properties
@@ -18,7 +18,10 @@ import CoreData
     let fetchedIndex: Int?
     let fetchController: NSFetchedResultsController
     var fetchedInfo: NSFetchedResultsSectionInfo? {
-        return (fetchedIndex != nil) ? fetchController.sections![fetchedIndex!] as? NSFetchedResultsSectionInfo : nil
+        guard let index = fetchedIndex else {
+            return nil
+        }
+        return fetchController.sections![index]
     }
     
     // ========================================
@@ -30,12 +33,11 @@ import CoreData
         self.fetchedIndex = fetchedIndex
         self.fetchController = fetchController
     }
-    
 }
 
 extension ControllerSectionInfo: NSFetchedResultsSectionInfo {
-    var name: String? { return section.title() }
-    var indexTitle: String { return "" }
-    var numberOfObjects: Int { return fetchedInfo?.numberOfObjects ?? 0 }
-    var objects: [AnyObject] { return fetchedInfo?.objects ?? [] }
+    @objc var name: String { return section.title }
+    @objc var indexTitle: String? { return "" }
+    @objc var numberOfObjects: Int { return fetchedInfo?.numberOfObjects ?? 0 }
+    @objc var objects: [AnyObject]? { return fetchedInfo?.objects ?? [] }
 }
