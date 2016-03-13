@@ -61,7 +61,9 @@ public class FetchControllerDelegate: NSObject, NSFetchedResultsControllerDelega
         case .Delete:
             tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Automatic)
         case .Update:
-            onUpdate?(cell: tableView.cellForRowAtIndexPath(indexPath!)!, object: anObject)
+            if let indexPath = indexPath, cell = tableView.cellForRowAtIndexPath(indexPath) {
+                onUpdate?(cell: cell, object: anObject)
+            }
         case .Move:
             // Stupid and ugly, rdar://17684030
             if !sectionsBeingAdded.contains(newIndexPath!.section) && !sectionsBeingRemoved.contains(indexPath!.section) {
