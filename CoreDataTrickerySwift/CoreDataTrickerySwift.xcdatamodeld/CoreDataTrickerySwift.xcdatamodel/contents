@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6220.8" systemVersion="13E28" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15D21" minimumToolsVersion="Automatic">
     <entity name="ToDo" representedClassName="ToDo" syncable="YES">
         <attribute name="done" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="priority" attributeType="Integer 32" defaultValueString="2" syncable="YES"/>
@@ -7,7 +7,7 @@
         <relationship name="metaData" maxCount="1" deletionRule="Cascade" destinationEntity="ToDoMetaData" inverseName="toDo" inverseEntity="ToDoMetaData" syncable="YES"/>
     </entity>
     <entity name="ToDoListConfiguration" representedClassName="ToDoListConfiguration" syncable="YES">
-        <attribute name="listModeValue" attributeType="Integer 32" defaultValueString="1" syncable="YES"/>
+        <attribute name="listModeValue" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
         <relationship name="toDoMetaData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ToDoMetaData" inverseName="listConfiguration" inverseEntity="ToDoMetaData" syncable="YES"/>
     </entity>
     <entity name="ToDoMetaData" representedClassName="ToDoMetaData" syncable="YES">

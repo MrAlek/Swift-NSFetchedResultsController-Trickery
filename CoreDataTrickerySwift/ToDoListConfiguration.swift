@@ -9,8 +9,8 @@
 import CoreData
 
 enum ToDoListMode: Int {
-    case Simple = 1
-    case Prioritized = 2
+    case Simple = 0
+    case Prioritized = 1
 }
 
 @objc(ToDoListConfiguration)
@@ -27,6 +27,8 @@ class ToDoListConfiguration: NSManagedObject {
             return ToDoListMode(rawValue: listModeValue.integerValue)!
         }
         set {
+            guard newValue != listMode else { return }
+            
             listModeValue = newValue.rawValue
             for metaData in toDoMetaData.allObjects as! [ToDoMetaData] {
                 metaData.updateSectionIdentifier()

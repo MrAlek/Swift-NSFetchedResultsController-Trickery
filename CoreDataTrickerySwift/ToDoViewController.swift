@@ -49,6 +49,11 @@ class ToDoViewController: UITableViewController {
     // ========================================
     
     // MARK: View lifecycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        modeControl.selectedSegmentIndex = ToDoListConfiguration.defaultConfiguration(managedObjectContext).listMode.rawValue
+    }
 
     override func setEditing(editing: Bool, animated: Bool)  {
         super.setEditing(editing, animated: animated)
