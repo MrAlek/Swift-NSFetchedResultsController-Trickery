@@ -9,20 +9,20 @@
 import CoreData
 import UIKit
 
-public class FetchControllerDelegate: NSObject, NSFetchedResultsControllerDelegate {
+open class FetchControllerDelegate: NSObject, NSFetchedResultsControllerDelegate {
     
-    private var sectionsBeingAdded: [Int] = []
-    private var sectionsBeingRemoved: [Int] = []
-    private unowned let tableView: UITableView
+    fileprivate var sectionsBeingAdded: [Int] = []
+    fileprivate var sectionsBeingRemoved: [Int] = []
+    fileprivate unowned let tableView: UITableView
     
-    public var onUpdate: ((cell: UITableViewCell, object: AnyObject) -> Void)?
-    public var ignoreNextUpdates: Bool = false
+    open var onUpdate: ((_ cell: UITableViewCell, _ object: AnyObject) -> Void)?
+    open var ignoreNextUpdates: Bool = false
     
     init(tableView: UITableView) {
         self.tableView = tableView
     }
     
-    public func controllerWillChangeContent(controller: NSFetchedResultsController)  {
+    open func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>)  {
         if ignoreNextUpdates {
             return
         }
@@ -32,51 +32,51 @@ public class FetchControllerDelegate: NSObject, NSFetchedResultsControllerDelega
         tableView.beginUpdates()
     }
     
-    public func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType)  {
+    open func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType)  {
         if ignoreNextUpdates {
             return
         }
         
         switch type {
-        case .Insert:
+        case .insert:
             sectionsBeingAdded.append(sectionIndex)
-            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-        case .Delete:
+            tableView.insertSections(IndexSet(integer: sectionIndex), with: .fade)
+        case .delete:
             sectionsBeingRemoved.append(sectionIndex)
-            self.tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
+            self.tableView.deleteSections(IndexSet(integer: sectionIndex), with: .fade)
         default:
             return
         }
     }
     
     
-    public func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+    open func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         if ignoreNextUpdates {
             return
         }
         
         switch type {
-        case .Insert:
-            tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Automatic)
-        case .Delete:
-            tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Automatic)
-        case .Update:
-            if let indexPath = indexPath, cell = tableView.cellForRowAtIndexPath(indexPath) {
-                onUpdate?(cell: cell, object: anObject)
+        case .insert:
+            tableView.insertRows(at: [newIndexPath!], with: .automatic)
+        case .delete:
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
+        case .update:
+            if let indexPath = indexPath, let cell = tableView.cellForRow(at: indexPath) {
+                onUpdate?(cell, anObject as AnyObject)
             }
-        case .Move:
+        case .move:
             // Stupid and ugly, rdar://17684030
             if !sectionsBeingAdded.contains(newIndexPath!.section) && !sectionsBeingRemoved.contains(indexPath!.section) {
-                tableView.moveRowAtIndexPath(indexPath!, toIndexPath: newIndexPath!)
-                onUpdate?(cell: tableView.cellForRowAtIndexPath(indexPath!)!, object: anObject)
+                tableView.moveRow(at: indexPath!, to: newIndexPath!)
+                onUpdate?(tableView.cellForRow(at: indexPath!)!, anObject as AnyObject)
             } else {
-                tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
-                tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
+                tableView.deleteRows(at: [indexPath!], with: .fade)
+                tableView.insertRows(at: [newIndexPath!], with: .fade)
             }
         }
     }
     
-    public func controllerDidChangeContent(controller: NSFetchedResultsController)  {
+    open func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>)  {
         if !ignoreNextUpdates {
             tableView.endUpdates()
         }

@@ -9,8 +9,8 @@
 import CoreData
 
 enum ToDoListMode: Int {
-    case Simple = 0
-    case Prioritized = 1
+    case simple = 0
+    case prioritized = 1
 }
 
 @objc(ToDoListConfiguration)
@@ -19,12 +19,12 @@ class ToDoListConfiguration: NSManagedObject {
         return "ToDoListConfiguration"
     }
     
-    @NSManaged private var listModeValue: NSNumber
+    @NSManaged fileprivate var listModeValue: Int
     @NSManaged var toDoMetaData: NSSet
     
     var listMode: ToDoListMode {
         get {
-            return ToDoListMode(rawValue: listModeValue.integerValue)!
+            return ToDoListMode(rawValue: listModeValue)!
         }
         set {
             guard newValue != listMode else { return }
@@ -38,9 +38,9 @@ class ToDoListConfiguration: NSManagedObject {
     
     var sections: [ToDoSection] {
         switch listMode {
-        case .Simple:
+        case .simple:
             return [.ToDo, .Done]
-        case .Prioritized:
+        case .prioritized:
             return [.HighPriority, .MediumPriority, .LowPriority, .Done]
         }
     }
@@ -51,10 +51,10 @@ class ToDoListConfiguration: NSManagedObject {
 //
 
 extension ToDoListConfiguration {
-    class func defaultConfiguration(context: NSManagedObjectContext) -> ToDoListConfiguration {
+    class func defaultConfiguration(_ context: NSManagedObjectContext) -> ToDoListConfiguration {
         
-        let fetchRequest = NSFetchRequest(entityName: entityName)
-        let configurations = try! context.executeFetchRequest(fetchRequest)
-        return configurations.first as? ToDoListConfiguration ?? NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: context) as! ToDoListConfiguration
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        let configurations = try! context.fetch(fetchRequest)
+        return configurations.first as? ToDoListConfiguration ?? NSEntityDescription.insertNewObject(forEntityName: entityName, into: context) as! ToDoListConfiguration
     }
 }

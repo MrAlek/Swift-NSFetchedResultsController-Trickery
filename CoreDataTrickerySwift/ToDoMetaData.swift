@@ -11,8 +11,8 @@ import CoreData
 @objc(ToDoMetaData)
 class ToDoMetaData: NSManagedObject {
     
-    @NSManaged var internalOrder: NSNumber
-    @NSManaged var sectionIdentifier: NSString
+    @NSManaged var internalOrder: Int
+    @NSManaged var sectionIdentifier: String
     @NSManaged var toDo: ToDo
     @NSManaged var listConfiguration: ToDoListConfiguration
     
@@ -25,7 +25,7 @@ class ToDoMetaData: NSManagedObject {
         sectionIdentifier = sectionForCurrentState().rawValue
     }
     
-    func setSection(section: ToDoSection) {
+    func setSection(_ section: ToDoSection) {
         switch section {
         case .ToDo:
             toDo.done = false
@@ -33,27 +33,27 @@ class ToDoMetaData: NSManagedObject {
             toDo.done = true
         case .HighPriority:
             toDo.done = false
-            toDo.priority = ToDoPriority.High.rawValue
+            toDo.priority = ToDoPriority.high.rawValue
         case .MediumPriority:
             toDo.done = false
-            toDo.priority = ToDoPriority.Medium.rawValue
+            toDo.priority = ToDoPriority.medium.rawValue
         case .LowPriority:
             toDo.done = false
-            toDo.priority = ToDoPriority.Low.rawValue
+            toDo.priority = ToDoPriority.low.rawValue
         }
         sectionIdentifier = section.rawValue
     }
     
-    private func sectionForCurrentState() -> ToDoSection {
-        if toDo.done.boolValue {
+    fileprivate func sectionForCurrentState() -> ToDoSection {
+        if toDo.done {
             return .Done
-        } else if listConfiguration.listMode == ToDoListMode.Simple {
+        } else if listConfiguration.listMode == ToDoListMode.simple {
             return .ToDo
         } else {
-            switch ToDoPriority(rawValue: toDo.priority.integerValue)! {
-            case .Low:      return .LowPriority
-            case .Medium:   return .MediumPriority
-            case .High:     return .HighPriority
+            switch ToDoPriority(rawValue: toDo.priority)! {
+            case .low:      return .LowPriority
+            case .medium:   return .MediumPriority
+            case .high:     return .HighPriority
             }
         }
     }
@@ -68,25 +68,25 @@ extension ToDoMetaData {
         return "ToDoMetaData"
     }
     
-    class func maxInternalOrder(context: NSManagedObjectContext) -> Int {
+    class func maxInternalOrder(_ context: NSManagedObjectContext) -> Int {
         
         let maxInternalOrderExpression = NSExpression(forFunction: "max:", arguments: [NSExpression(forKeyPath: "internalOrder")])
         
         let expressionDescription = NSExpressionDescription()
         expressionDescription.name = "maxInternalOrder"
         expressionDescription.expression = maxInternalOrderExpression
-        expressionDescription.expressionResultType = .Integer32AttributeType
+        expressionDescription.expressionResultType = .integer32AttributeType
         
-        let fetchRequest = NSFetchRequest(entityName: entityName)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         fetchRequest.propertiesToFetch = [expressionDescription]
-        fetchRequest.resultType = .DictionaryResultType
+        fetchRequest.resultType = .dictionaryResultType
         
-        guard let results = try? context.executeFetchRequest(fetchRequest) else {
+        guard let results = try? context.fetch(fetchRequest) else {
             return 0
         }
         
         if let toDoMetaData = results.first as? ToDoMetaData {
-            return toDoMetaData.valueForKey("maxInternalOrder") as! Int
+            return toDoMetaData.value(forKey: "maxInternalOrder") as! Int
         }
         
         return 0

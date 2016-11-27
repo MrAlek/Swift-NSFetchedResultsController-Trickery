@@ -17,11 +17,11 @@ enum ToDoSection: String {
     
     var title: String {
         switch self {
-        case ToDo:              return "Left to do"
-        case Done:              return "Done"
-        case HighPriority:      return "High priority"
-        case MediumPriority:    return "Medium priority"
-        case LowPriority:       return "Low priority"
+        case .ToDo:              return "Left to do"
+        case .Done:              return "Done"
+        case .HighPriority:      return "High priority"
+        case .MediumPriority:    return "Medium priority"
+        case .LowPriority:       return "Low priority"
         }
     }
 }

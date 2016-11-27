@@ -16,7 +16,7 @@ class ControllerSectionInfo {
     
     let section: ToDoSection
     let fetchedIndex: Int?
-    let fetchController: NSFetchedResultsController
+    let fetchController: NSFetchedResultsController<NSFetchRequestResult>
     var fetchedInfo: NSFetchedResultsSectionInfo? {
         guard let index = fetchedIndex else {
             return nil
@@ -28,7 +28,7 @@ class ControllerSectionInfo {
     // MARK: - Internal methods
     // ========================================
     
-    init(section: ToDoSection, fetchedIndex: Int?, fetchController: NSFetchedResultsController) {
+    init(section: ToDoSection, fetchedIndex: Int?, fetchController: NSFetchedResultsController<NSFetchRequestResult>) {
         self.section = section
         self.fetchedIndex = fetchedIndex
         self.fetchController = fetchController
@@ -39,5 +39,5 @@ extension ControllerSectionInfo: NSFetchedResultsSectionInfo {
     @objc var name: String { return section.title }
     @objc var indexTitle: String? { return "" }
     @objc var numberOfObjects: Int { return fetchedInfo?.numberOfObjects ?? 0 }
-    @objc var objects: [AnyObject]? { return fetchedInfo?.objects ?? [] }
+    @objc var objects: [Any]? { return fetchedInfo?.objects as [AnyObject]?? ?? [] }
 }

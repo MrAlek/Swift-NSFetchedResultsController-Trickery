@@ -16,37 +16,37 @@ class NewToDoViewController: UIViewController {
     
     var managedObjectContext: NSManagedObjectContext!
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         textField.becomeFirstResponder()
     }
     
     @IBAction func cancelButtonPressed() {
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
     
     @IBAction func saveButtonPressed() {
         guard let title = textField.text else {
-            presentViewController(UIAlertController(title: "Can't create ToDo", message: "Title can't be blank", preferredStyle: .Alert), animated: true, completion: nil)
+            present(UIAlertController(title: "Can't create ToDo", message: "Title can't be blank", preferredStyle: .alert), animated: true, completion: nil)
             return
         }
         
-        let toDo = NSEntityDescription.insertNewObjectForEntityForName(ToDo.entityName, inManagedObjectContext: managedObjectContext) as! ToDo
+        let toDo = NSEntityDescription.insertNewObject(forEntityName: ToDo.entityName, into: managedObjectContext) as! ToDo
         toDo.title = title
         toDo.priority = selectedPriority().rawValue
         toDo.metaData.internalOrder = ToDoMetaData.maxInternalOrder(managedObjectContext)+1
         toDo.metaData.updateSectionIdentifier()
         try! managedObjectContext.save()
         
-        dismissViewControllerAnimated(true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
     
     func selectedPriority() -> ToDoPriority {
         switch self.priorityControl.selectedSegmentIndex {
-        case 0:  return .Low
-        case 1:  return .Medium
-        case 2:  return .High
-        default: return .Medium
+        case 0:  return .low
+        case 1:  return .medium
+        case 2:  return .high
+        default: return .medium
         }
     }
 }

@@ -14,7 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         if let toDosController = (window?.rootViewController as? UINavigationController)?.topViewController as? ToDoViewController {
             toDosController.managedObjectContext = managedObjectContext
         }
@@ -22,11 +22,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
-    func applicationDidEnterBackground(application: UIApplication) {
+    func applicationDidEnterBackground(_ application: UIApplication) {
         saveContext()
     }
     
-    func applicationWillTerminate(application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         saveContext()
     }
     
@@ -47,15 +47,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
     
     lazy var managedObjectModel: NSManagedObjectModel = {
-        let modelURL = NSBundle.mainBundle().URLForResource("CoreDataTrickerySwift", withExtension: "momd")
-        return NSManagedObjectModel(contentsOfURL: modelURL!)!
+        let modelURL = Bundle.main.url(forResource: "CoreDataTrickerySwift", withExtension: "momd")
+        return NSManagedObjectModel(contentsOf: modelURL!)!
     }()
     
     lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator = {
-        let storeURL = AppDelegate.applicationDocumentsDirectory.URLByAppendingPathComponent("CoreDataTrickerySwift.sqlite")
+        let storeURL = AppDelegate.applicationDocumentsDirectory.appendingPathComponent("CoreDataTrickerySwift.sqlite")
         let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         let options = [NSMigratePersistentStoresAutomaticallyOption: true, NSInferMappingModelAutomaticallyOption: true]
-        try! coordinator.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: storeURL, options: options)
+        try! coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options)
         return coordinator
     }()
 }
@@ -64,8 +64,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate {
     
-    class var applicationDocumentsDirectory: NSURL {
-        let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
+    class var applicationDocumentsDirectory: URL {
+        let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return urls.last!
     }
 }

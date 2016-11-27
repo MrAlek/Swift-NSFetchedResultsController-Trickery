@@ -10,9 +10,9 @@ import Foundation
 import CoreData
 
 enum ToDoPriority: Int {
-    case Low = 1
-    case Medium = 2
-    case High = 3
+    case low = 1
+    case medium = 2
+    case high = 3
 }
 
 @objc(ToDo)
@@ -22,12 +22,12 @@ class ToDo: NSManagedObject {
     }
 
     @NSManaged var title: String
-    @NSManaged var done: NSNumber
-    @NSManaged var priority: NSNumber
+    @NSManaged var done: Bool
+    @NSManaged var priority: Int
     @NSManaged var metaData: ToDoMetaData
     
     override func awakeFromInsert() {
         super.awakeFromInsert()
-        metaData = NSEntityDescription.insertNewObjectForEntityForName(ToDoMetaData.entityName, inManagedObjectContext: managedObjectContext!) as! ToDoMetaData
+        metaData = NSEntityDescription.insertNewObject(forEntityName: ToDoMetaData.entityName, into: managedObjectContext!) as! ToDoMetaData
     }
 }

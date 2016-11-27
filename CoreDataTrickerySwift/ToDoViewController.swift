@@ -21,7 +21,7 @@ class ToDoViewController: UITableViewController {
     // MARK: - Private properties
     // ========================================
 
-    private lazy var fetchControllerDelegate: FetchControllerDelegate = {
+    fileprivate lazy var fetchControllerDelegate: FetchControllerDelegate = {
         
         let delegate = FetchControllerDelegate(tableView: self.tableView)
         delegate.onUpdate = {
@@ -31,7 +31,7 @@ class ToDoViewController: UITableViewController {
         
         return delegate
     }()
-    private lazy var toDoListController: ToDoListController = {
+    fileprivate lazy var toDoListController: ToDoListController = {
         
         let controller = ToDoListController(managedObjectContext: self.managedObjectContext)
         controller.delegate = self.fetchControllerDelegate
@@ -39,9 +39,9 @@ class ToDoViewController: UITableViewController {
         return controller
     }()
     
-    @IBOutlet private weak var modeControl: UISegmentedControl!
-    @IBOutlet private var editBarButtonItem: UIBarButtonItem!
-    @IBOutlet private var doneBarButtonItem: UIBarButtonItem!
+    @IBOutlet fileprivate weak var modeControl: UISegmentedControl!
+    @IBOutlet fileprivate var editBarButtonItem: UIBarButtonItem!
+    @IBOutlet fileprivate var doneBarButtonItem: UIBarButtonItem!
     
     
     // ========================================
@@ -55,48 +55,48 @@ class ToDoViewController: UITableViewController {
         modeControl.selectedSegmentIndex = ToDoListConfiguration.defaultConfiguration(managedObjectContext).listMode.rawValue
     }
 
-    override func setEditing(editing: Bool, animated: Bool)  {
+    override func setEditing(_ editing: Bool, animated: Bool)  {
         super.setEditing(editing, animated: animated)
         
         navigationItem.leftBarButtonItem = editing ? doneBarButtonItem : editBarButtonItem
         
-        modeControl.enabled = !editing
-        modeControl.userInteractionEnabled = !editing // Needs to set because of bug in iOS 8 & 9 rdar://17881987
+        modeControl.isEnabled = !editing
+        modeControl.isUserInteractionEnabled = !editing // Needs to set because of bug in iOS 8 & 9 rdar://17881987
     }
     
     // MARK: User interaction
     
     @IBAction func toggleEditing() {
-        setEditing(!editing, animated: true)
-        toDoListController.showsEmptySections = editing
+        setEditing(!isEditing, animated: true)
+        toDoListController.showsEmptySections = isEditing
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any!) {
         if segue.identifier == "present new to do" {
-            let navc = segue.destinationViewController as! UINavigationController
+            let navc = segue.destination as! UINavigationController
             let newVC = navc.topViewController as! NewToDoViewController
             
             newVC.managedObjectContext = self.managedObjectContext
         }
     }
     
-    @IBAction func viewModeControlChanged(sender: UISegmentedControl) {
+    @IBAction func viewModeControlChanged(_ sender: UISegmentedControl) {
         let configuration = ToDoListConfiguration.defaultConfiguration(managedObjectContext)
-        configuration.listMode = sender.selectedSegmentIndex == 0 ? .Simple : .Prioritized
+        configuration.listMode = sender.selectedSegmentIndex == 0 ? .simple : .prioritized
     }
     
     // MARK: Table view data source
     
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return toDoListController.sections.count
     }
     
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return toDoListController.sections[section].numberOfObjects
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCellWithIdentifier("cell"), toDo = toDoListController.toDoAtIndexPath(indexPath) else {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell"), let toDo = toDoListController.toDoAtIndexPath(indexPath) else {
             return UITableViewCell()
         }
         
@@ -104,7 +104,7 @@ class ToDoViewController: UITableViewController {
         return cell
     }
     
-    override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath == destinationIndexPath {
             return
         }
@@ -118,8 +118,8 @@ class ToDoViewController: UITableViewController {
             toDo.metaData.setSection(sectionInfo.section)
             
             // Update cell
-            NSOperationQueue.mainQueue().addOperationWithBlock { // Table view is in inconsistent state, gotta wait
-                if let cell = tableView.cellForRowAtIndexPath(destinationIndexPath) {
+            OperationQueue.main.addOperation { // Table view is in inconsistent state, gotta wait
+                if let cell = tableView.cellForRow(at: destinationIndexPath) {
                     self.configureCell(cell, toDo: toDo)
                 }
             }
@@ -133,25 +133,25 @@ class ToDoViewController: UITableViewController {
     
     // MARK: Table view delegate
     
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)  {
-        if editingStyle == .Delete {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath)  {
+        if editingStyle == .delete {
             
             let toDo = toDoListController.toDoAtIndexPath(indexPath)
-            toDo?.managedObjectContext!.deleteObject(toDo!)
+            toDo?.managedObjectContext!.delete(toDo!)
             
             try! managedObjectContext.save()
         }
     }
     
-    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String {
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String {
         return toDoListController.sections[section].name
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         
         if let toDo = toDoListController.toDoAtIndexPath(indexPath) {
-            toDo.done = !toDo.done.boolValue
+            toDo.done = !toDo.done
             toDo.metaData.updateSectionIdentifier()
             try! toDo.managedObjectContext!.save()
         }
@@ -161,13 +161,13 @@ class ToDoViewController: UITableViewController {
     // MARK: - Private methods
     // ========================================
     
-    private func configureCell(cell: UITableViewCell, toDo: ToDo) {
+    fileprivate func configureCell(_ cell: UITableViewCell, toDo: ToDo) {
         cell.textLabel?.text = toDo.title
-        let textColor = toDo.done.boolValue ? UIColor.lightGrayColor() : UIColor.blackColor()
+        let textColor = toDo.done ? UIColor.lightGray : UIColor.black
         cell.textLabel?.textColor = textColor
     }
     
-    private func updateInternalOrderForToDo(toDo: ToDo, sourceIndexPath: NSIndexPath, destinationIndexPath: NSIndexPath) {
+    fileprivate func updateInternalOrderForToDo(_ toDo: ToDo, sourceIndexPath: IndexPath, destinationIndexPath: IndexPath) {
         
         // Now update internal order to reflect new position
         
@@ -183,10 +183,10 @@ class ToDoViewController: UITableViewController {
                 sortedIndex -= 1 // Remember, controller still thinks this toDo is in the old section
             }
         }
-        sortedToDos.insert(toDo, atIndex: sortedIndex)
+        sortedToDos.insert(toDo, at: sortedIndex)
         
         // Regenerate internal order for all toDos
-        for (index, toDo) in sortedToDos.enumerate() {
+        for (index, toDo) in sortedToDos.enumerated() {
             toDo.metaData.internalOrder = sortedToDos.count-index
         }
     }
