@@ -73,6 +73,8 @@ open class FetchControllerDelegate: NSObject, NSFetchedResultsControllerDelegate
                 tableView.deleteRows(at: [indexPath!], with: .fade)
                 tableView.insertRows(at: [newIndexPath!], with: .fade)
             }
+        @unknown default:
+            break
         }
     }
     

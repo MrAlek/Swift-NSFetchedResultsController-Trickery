@@ -14,7 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         if let toDosController = (window?.rootViewController as? UINavigationController)?.topViewController as? ToDoViewController {
             toDosController.managedObjectContext = managedObjectContext
         }
@@ -41,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: Core Data stack
     
     lazy var managedObjectContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext()
+        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         context.persistentStoreCoordinator = self.persistentStoreCoordinator
         return context
     }()

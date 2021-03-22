@@ -118,12 +118,12 @@ class ToDoListController: NSObject {
             // Map sections to sectionInfo structs with each section and its fetched index
             return configuration.sections.map {
                 section in
-                let fetchedIndex = fetchedSectionNames.index(of: section.rawValue)
+                let fetchedIndex = fetchedSectionNames.firstIndex(of: section.rawValue)
                 return ControllerSectionInfo(section: section, fetchedIndex: fetchedIndex, fetchController: (toDosController as! NSFetchedResultsController<NSFetchRequestResult>) )
             }
         } else {
             // Just get all the sections from the fetched results controller
-            let rawSectionValuesIndexes = fetchedSectionNames.map { ($0, fetchedSectionNames.index(of: $0)) }
+            let rawSectionValuesIndexes = fetchedSectionNames.map { ($0, fetchedSectionNames.firstIndex(of: $0)) }
             return rawSectionValuesIndexes.map {
                 ControllerSectionInfo(section: ToDoSection(rawValue: $0.0)!, fetchedIndex: $0.1, fetchController: (toDosController as! NSFetchedResultsController<NSFetchRequestResult>))
             }
